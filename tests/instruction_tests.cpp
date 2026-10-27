@@ -61,15 +61,31 @@ protected:
 
 };
 
-// Each instruction gets its own test suite name, but
-// they all share the same setup and utility functions.
-using AddTests = InstructionTests;
+/* All tests share the same fixture, but each
+ * instruction gets its own test suite name. */
 
-TEST_F(AddTests, SumsTwoRegisters)
+using AddTests = InstructionTests;
+using SubTests = InstructionTests;
+
+TEST_F(AddTests, ComputesResult)
 {
     core.registers.WriteGP(1, 1);
     core.registers.WriteGP(2, 2);
     ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 3}, 3u);
+}
+
+TEST_F(AddTests, ComputesResultForNegativeOperands)
+{
+    core.registers.WriteGP(1, static_cast<uint32_t>(-1));
+    core.registers.WriteGP(2, static_cast<uint32_t>(-2));
+    ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 3}, static_cast<uint32_t>(-3));
+}
+
+TEST_F(AddTests, ComputesResultForMixedSignOperands)
+{
+    core.registers.WriteGP(1, 5);
+    core.registers.WriteGP(2, static_cast<uint32_t>(-3));
+    ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 3}, 2u);
 }
 
 TEST_F(AddTests, WrapsOnUnsignedOverflow)
@@ -86,31 +102,6 @@ TEST_F(AddTests, WrapsOnSignedOverflow)
     ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 3}, 0x80000000u);
 }
 
-TEST_F(AddTests, SumsTwoNegativeOperands)
-{
-    core.registers.WriteGP(1, static_cast<uint32_t>(-1));
-    core.registers.WriteGP(2, static_cast<uint32_t>(-2));
-    ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 3}, static_cast<uint32_t>(-3));
-}
-
-TEST_F(AddTests, SumsMixedSignOperands)
-{
-    core.registers.WriteGP(1, 5);
-    core.registers.WriteGP(2, static_cast<uint32_t>(-3));
-    ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 3}, 2u);
-}
-
-TEST_F(AddTests, ZeroOperandLeavesOtherOperandUnchanged)
-{
-    core.registers.WriteGP(1, 0xDEADBEEFu);
-    core.registers.WriteGP(2, 0);
-    ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 3}, 0xDEADBEEFu);
-
-    core.registers.WriteGP(1, 0);
-    core.registers.WriteGP(2, 0xDEADBEEFu);
-    ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 3}, 0xDEADBEEFu);
-}
-
 TEST_F(AddTests, ReadsX0AsZeroForFirstSource)
 {
     core.registers.WriteGP(2, 7);
@@ -123,18 +114,21 @@ TEST_F(AddTests, ReadsX0AsZeroForSecondSource)
     ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 0, .rd = 3}, 9u);
 }
 
-TEST_F(AddTests, DestinationMayAliasSourceRegisters)
+TEST_F(AddTests, WritesResultWhenDestinationAliasesFirstSource)
 {
     core.registers.WriteGP(1, 4);
     core.registers.WriteGP(2, 6);
     ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 1}, 10u);
+}
 
+TEST_F(AddTests, WritesResultWhenDestinationAliasesSecondSource)
+{
     core.registers.WriteGP(1, 4);
     core.registers.WriteGP(2, 6);
     ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 2}, 10u);
 }
 
-TEST_F(AddTests, SameRegisterForBothSourcesDoubles)
+TEST_F(AddTests, ReadsSameRegisterForBothSources)
 {
     core.registers.WriteGP(1, 0x80000001u);
     ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 1, .rd = 3}, 2u);
@@ -147,12 +141,78 @@ TEST_F(AddTests, DiscardsResultWhenDestinationIsX0)
     ExecuteExpecting<ADD>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 0}, 0u);
 }
 
-TEST_F(InstructionTests, SUB)
+TEST_F(SubTests, ComputesResult)
 {
     core.registers.WriteGP(1, 3);
     core.registers.WriteGP(2, 2);
-    Execute<SUB>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Alternative, .rs1 = 1, .rs2 = 2, .rd = 3});
-    EXPECT_EQ(core.registers.ReadGP(3), 1u);
+    ExecuteExpecting<SUB>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Alternative, .rs1 = 1, .rs2 = 2, .rd = 3}, 1u);
+}
+
+TEST_F(SubTests, ComputesResultForNegativeOperands)
+{
+    core.registers.WriteGP(1, static_cast<uint32_t>(-1));
+    core.registers.WriteGP(2, static_cast<uint32_t>(-2));
+    ExecuteExpecting<SUB>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Alternative, .rs1 = 1, .rs2 = 2, .rd = 3}, 1u);
+}
+
+TEST_F(SubTests, ComputesResultForMixedSignOperands)
+{
+    core.registers.WriteGP(1, 5);
+    core.registers.WriteGP(2, static_cast<uint32_t>(-3));
+    ExecuteExpecting<SUB>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Alternative, .rs1 = 1, .rs2 = 2, .rd = 3}, 8u);
+}
+
+TEST_F(SubTests, WrapsOnUnsignedOverflow)
+{
+    core.registers.WriteGP(1, 0);
+    core.registers.WriteGP(2, 1);
+    ExecuteExpecting<SUB>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Alternative, .rs1 = 1, .rs2 = 2, .rd = 3}, 0xFFFFFFFFu);
+}
+
+TEST_F(SubTests, WrapsOnSignedOverflow)
+{
+    core.registers.WriteGP(1, 0x80000000u);
+    core.registers.WriteGP(2, 1);
+    ExecuteExpecting<SUB>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Alternative, .rs1 = 1, .rs2 = 2, .rd = 3}, 0x7FFFFFFFu);
+}
+
+TEST_F(SubTests, ReadsX0AsZeroForFirstSource)
+{
+    core.registers.WriteGP(2, 7);
+    ExecuteExpecting<SUB>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Alternative, .rs1 = 0, .rs2 = 2, .rd = 3}, static_cast<uint32_t>(-7));
+}
+
+TEST_F(SubTests, ReadsX0AsZeroForSecondSource)
+{
+    core.registers.WriteGP(1, 9);
+    ExecuteExpecting<SUB>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Alternative, .rs1 = 1, .rs2 = 0, .rd = 3}, 9u);
+}
+
+TEST_F(SubTests, WritesResultWhenDestinationAliasesFirstSource)
+{
+    core.registers.WriteGP(1, 10);
+    core.registers.WriteGP(2, 4);
+    ExecuteExpecting<SUB>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Alternative, .rs1 = 1, .rs2 = 2, .rd = 1}, 6u);
+}
+
+TEST_F(SubTests, WritesResultWhenDestinationAliasesSecondSource)
+{
+    core.registers.WriteGP(1, 10);
+    core.registers.WriteGP(2, 4);
+    ExecuteExpecting<SUB>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Alternative, .rs1 = 1, .rs2 = 2, .rd = 2}, 6u);
+}
+
+TEST_F(SubTests, ReadsSameRegisterForBothSources)
+{
+    core.registers.WriteGP(1, 0x80000001u);
+    ExecuteExpecting<SUB>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Alternative, .rs1 = 1, .rs2 = 1, .rd = 3}, 0u);
+}
+
+TEST_F(SubTests, DiscardsResultWhenDestinationIsX0)
+{
+    core.registers.WriteGP(1, 6);
+    core.registers.WriteGP(2, 4);
+    ExecuteExpecting<SUB>({.opcode = Opcode::R, .funct3 = Funct3::AddSub, .funct7 = Funct7::Alternative, .rs1 = 1, .rs2 = 2, .rd = 0}, 0u);
 }
 
 TEST_F(InstructionTests, AND)
@@ -406,18 +466,29 @@ TEST_F(InstructionTests, BGEU)
     EXPECT_EQ(core.registers.ReadPC(), 4u);
 }
 
-TEST_F(InstructionTests, JAL)
+TEST_F(InstructionTests, JAL_SetsPC)
 {
     Execute<JAL>({.opcode = Opcode::J, .rd = 1, .imm = 4});
     EXPECT_EQ(core.registers.ReadPC(), 4u);
+}
+
+TEST_F(InstructionTests, JAL_WritesLinkRegister)
+{
+    Execute<JAL>({.opcode = Opcode::J, .rd = 1, .imm = 4});
     EXPECT_EQ(core.registers.ReadGP(1), 4u);
 }
 
-TEST_F(InstructionTests, JALR)
+TEST_F(InstructionTests, JALR_SetsPC)
 {
     core.registers.WriteGP(1, 0x1000);
     Execute<JALR>({.opcode = Opcode::Jalr, .rs1 = 1, .rd = 2, .imm = 4});
     EXPECT_EQ(core.registers.ReadPC(), 0x1004u);
+}
+
+TEST_F(InstructionTests, JALR_WritesLinkRegister)
+{
+    core.registers.WriteGP(1, 0x1000);
+    Execute<JALR>({.opcode = Opcode::Jalr, .rs1 = 1, .rd = 2, .imm = 4});
     EXPECT_EQ(core.registers.ReadGP(2), 4u);
 }
 
