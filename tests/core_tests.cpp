@@ -44,5 +44,5 @@ TEST(CoreTests, SimpleProgram)
 
     core.Run(65u);
 
-    EXPECT_EQ(core.x[6], 55u);
+    EXPECT_EQ(core.registers.ReadGP(6), 55u);
 }

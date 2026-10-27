@@ -6,6 +6,7 @@ include(cmake/cpm_fetch_dependencies.cmake)
 add_library(emulator
     src/core.cpp
     src/instruction.cpp
+    src/registers.cpp
 )
 target_include_directories(emulator PUBLIC src)
 target_compile_features(emulator PUBLIC cxx_std_23)

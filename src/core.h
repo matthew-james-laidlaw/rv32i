@@ -3,6 +3,7 @@
 #include <format.h>
 #include <instruction.h>
 #include <memory.h>
+#include <registers.h>
 
 #include <cstdint>
 #include <memory>
@@ -11,16 +12,14 @@ class Core
 {
 public:
 
-	Core()
-		: memory(), x{}, pc(0)
-	{}
-
-	Memory memory;   // main memory
-	uint32_t x[32];  // general purpose registers
-	uint32_t pc;     // program counter
+	Memory memory;        // main memory
+	Registers registers;  // register file
 
 	auto Run(uint32_t cycles) -> void;
 	auto Load(std::vector<uint8_t> program) -> void;
+
+	auto GetMemory() -> Memory&;
+	auto GetRegisters() -> Registers&;
 
 private:
 

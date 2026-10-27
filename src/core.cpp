@@ -17,12 +17,12 @@ auto Core::Run(uint32_t cycles) -> void
             break;
         }
 
-        auto previous_pc = pc;
+        auto previous_pc = registers.ReadPC();
         Execute(instruction);
-        x[0] = 0;
-        if (pc == previous_pc)
+        registers.WriteGP(0, 0);
+        if (registers.ReadPC() == previous_pc)
         {
-            pc += 4;
+            registers.WritePC(previous_pc + 4);
         }
     }
 }
@@ -35,14 +35,24 @@ auto Core::Load(std::vector<uint8_t> program) -> void
     }
 }
 
+auto Core::GetMemory() -> Memory&
+{
+    return memory;
+}
+
+auto Core::GetRegisters() -> Registers&
+{
+    return registers;
+}
+
 auto Core::Fetch() -> uint32_t
 {
-    return memory.ReadWord(pc);
+    return memory.ReadWord(registers.ReadPC());
 }
 
 auto Core::Decode(uint32_t instruction) -> std::unique_ptr<Instruction>
 {
-    auto fmt = DecodeFormat(instruction, pc);
+    auto fmt = DecodeFormat(instruction, registers.ReadPC());
     switch (fmt.opcode)
     {
         case 0x13: // I-type
