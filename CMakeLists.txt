@@ -9,6 +9,7 @@ target_compile_features(emulator INTERFACE cxx_std_23)
 
 add_executable(instruction_tests
     tests/instruction_tests.cpp
+    tests/memory_tests.cpp
 )
 target_link_libraries(instruction_tests emulator GTest::gtest_main)
 

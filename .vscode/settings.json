@@ -1,4 +1,5 @@
 {
     "cmake.ctest.allowParallelJobs": true,
-    "cmake.ctest.parallelJobs": 0
+    "cmake.ctest.parallelJobs": 0,
+    "cmake.configureOnEdit": false
 }
