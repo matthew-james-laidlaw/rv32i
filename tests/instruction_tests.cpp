@@ -538,3 +538,74 @@ TEST(InstructionTests, LHU)
     instr->Execute(core);
     EXPECT_EQ(core.x[3], static_cast<uint32_t>(0x1234));
 }
+
+TEST(InstructionTests, SB)
+{
+    auto fmt_sb = Format{
+        .opcode = 0x23,
+        .funct3 = 0,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 0,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0x1000;
+    core.x[2] = 0xAB;
+    auto* instr = new SB(fmt_sb);
+    instr->Execute(core);
+    auto data = core.memory.Read(0x1000, 1);
+    EXPECT_EQ(data[0], 0xAB);
+}
+
+
+TEST(InstructionTests, SH)
+{
+    auto fmt_sh = Format{
+        .opcode = 0x23,
+        .funct3 = 1,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 0,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0x1000;
+    core.x[2] = 0x1234;
+    auto* instr = new SH(fmt_sh);
+    instr->Execute(core);
+    auto data = core.memory.Read(0x1000, 2);
+    EXPECT_EQ(data[0], 0x34);
+    EXPECT_EQ(data[1], 0x12);
+}
+
+TEST(InstructionTests, SW)
+{
+    auto fmt_sw = Format{
+        .opcode = 0x23,
+        .funct3 = 2,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 0,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0x1000;
+    core.x[2] = 0x12345678;
+    auto* instr = new SW(fmt_sw);
+    instr->Execute(core);
+    auto data = core.memory.Read(0x1000, 4);
+    EXPECT_EQ(data[0], 0x78);
+    EXPECT_EQ(data[1], 0x56);
+    EXPECT_EQ(data[2], 0x34);
+    EXPECT_EQ(data[3], 0x12);
+}

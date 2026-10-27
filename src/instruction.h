@@ -456,3 +456,62 @@ public:
 	}
 
 };
+
+/** @par Store Instructions
+ *
+ *  These instructions perform store operations from the general purpose registers to memory.
+ *
+ */
+
+class SB : public Instruction
+{
+public:
+
+	SB(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		auto value = static_cast<uint8_t>(core.x[m_format.rs2] & 0xFF);
+		core.memory.Write(core.x[m_format.rs1] + m_format.imm, {value});
+	}
+
+};
+
+class SH : public Instruction
+{
+public:
+
+	SH(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		auto value = static_cast<uint16_t>(core.x[m_format.rs2] & 0xFFFF);
+		core.memory.Write(core.x[m_format.rs1] + m_format.imm, {static_cast<uint8_t>(value & 0xFF), static_cast<uint8_t>((value >> 8) & 0xFF)});
+	}
+
+};
+
+class SW : public Instruction
+{
+public:
+
+	SW(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		auto value = core.x[m_format.rs2];
+		core.memory.Write(core.x[m_format.rs1] + m_format.imm, {
+			static_cast<uint8_t>(value & 0xFF),
+			static_cast<uint8_t>((value >> 8) & 0xFF),
+			static_cast<uint8_t>((value >> 16) & 0xFF),
+			static_cast<uint8_t>((value >> 24) & 0xFF)
+		});
+	}
+
+};
