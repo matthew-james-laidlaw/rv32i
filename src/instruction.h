@@ -1,7 +1,8 @@
 #pragma once
 
-#include "core.h"
-#include "format.h"
+#include <core.h>
+#include <format.h>
+#include <memory.h>
 
 /** @par Instruction
  * 
@@ -361,6 +362,97 @@ public:
 	auto Execute(Core& core) -> void override
 	{
 		core.x[m_format.rd] = core.x[m_format.rs1] < m_format.imm ? 1 : 0;
+	}
+
+};
+
+/** @par Load Instructions
+ *
+ *  These instructions perform load operations from memory to the general purpose registers.
+ *
+ */
+
+class LB : public Instruction
+{
+public:
+
+	LB(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		auto data = core.memory.Read(core.x[m_format.rs1] + m_format.imm, 1);
+		auto value = static_cast<uint32_t>(data[0]);
+		core.x[m_format.rd] = (value & 0x80u) != 0 ? value | 0xFFFFFF00u : value;
+	}
+
+};
+
+class LH : public Instruction
+{
+public:
+
+	LH(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		auto data = core.memory.Read(core.x[m_format.rs1] + m_format.imm, 2);
+		auto value = static_cast<uint32_t>(data[0]) | (static_cast<uint32_t>(data[1]) << 8);
+		core.x[m_format.rd] = (value & 0x8000u) != 0 ? value | 0xFFFF0000u : value;
+	}
+
+};
+
+class LW : public Instruction
+{
+public:
+
+	LW(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		auto data = core.memory.Read(core.x[m_format.rs1] + m_format.imm, 4);
+		core.x[m_format.rd] = static_cast<uint32_t>(data[0])
+			| (static_cast<uint32_t>(data[1]) << 8)
+			| (static_cast<uint32_t>(data[2]) << 16)
+			| (static_cast<uint32_t>(data[3]) << 24);
+	}
+
+};
+
+class LBU : public Instruction
+{
+public:
+
+	LBU(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		core.x[m_format.rd] = core.memory.Read(core.x[m_format.rs1] + m_format.imm, 1)[0];
+	}
+
+};
+
+class LHU : public Instruction
+{
+public:
+
+	LHU(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		auto data = core.memory.Read(core.x[m_format.rs1] + m_format.imm, 2);
+		core.x[m_format.rd] = static_cast<uint32_t>(data[0])
+			| (static_cast<uint32_t>(data[1]) << 8);
 	}
 
 };
