@@ -776,3 +776,63 @@ TEST(InstructionTests, JALR)
     EXPECT_EQ(core.pc, 0x1004);
     EXPECT_EQ(core.x[2], 4);
 }
+
+TEST(InstructionTests, FENCE)
+{
+    auto fmt_fence = Format{
+        .opcode = 0x0F,
+        .funct3 = 0,
+        .funct7 = 0,
+        .rs1 = 0,
+        .rs2 = 0,
+        .rd = 0,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    auto* instr = new FENCE(fmt_fence);
+    instr->Execute(core);
+
+    // FENCE is a no-op
+}
+
+TEST(InstructionTests, ECALL)
+{
+    auto fmt_ecall = Format{
+        .opcode = 0x73,
+        .funct3 = 0,
+        .funct7 = 0,
+        .rs1 = 0,
+        .rs2 = 0,
+        .rd = 0,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    auto* instr = new ECALL(fmt_ecall);
+    instr->Execute(core);
+
+    // ECALL is a no-op
+}
+
+TEST(InstructionTests, EBREAK)
+{
+    auto fmt_ebreak = Format{
+        .opcode = 0x73,
+        .funct3 = 0,
+        .funct7 = 1,
+        .rs1 = 0,
+        .rs2 = 0,
+        .rd = 0,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    auto* instr = new EBREAK(fmt_ebreak);
+    instr->Execute(core);
+
+    // EBREAK is a no-op
+}

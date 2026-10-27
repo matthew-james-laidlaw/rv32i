@@ -668,3 +668,60 @@ public:
 	}
 
 };
+
+/** @par Memory Ordering Instructions
+ *
+ *  These instructions are used for synchronizing memory operations.
+ *
+ */
+
+class FENCE : public Instruction
+{
+public:
+
+	FENCE(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		// not implemented, no-op
+	}
+
+};
+
+/** @par System Instructions
+ *
+ *  These instructions are used for operating system and environment calls. They are used to request services from the operating system or to perform specific system-level operations.
+ *
+ */
+
+class ECALL : public Instruction
+{
+public:
+
+	ECALL(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		// not implemented, no-op
+	}
+
+};
+
+class EBREAK : public Instruction
+{
+public:
+
+	EBREAK(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		// not implemented, no-op
+	}
+
+};
