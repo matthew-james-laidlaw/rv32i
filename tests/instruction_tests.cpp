@@ -5,830 +5,314 @@
 #include <instruction.h>
 #include <memory.h>
 
-TEST(InstructionTests, ADD)
+class InstructionTests : public testing::Test
 {
-    auto fmt_add = Format{
-        .opcode = 0x33,
-        .funct3 = 0,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
+protected:
 
-    auto core = Core();
+    Core core;
+
+    // Executes instruction T against the fixture's processor core.
+    template <typename T>
+    auto Execute(Format const& format) -> void
+    {
+        T(format).Execute(core);
+    }
+
+};
+
+TEST_F(InstructionTests, ADD)
+{
     core.x[1] = 1;
     core.x[2] = 2;
-    auto* instr = new ADD(fmt_add);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], 3);
+    Execute<ADD>({.opcode = 0x33, .rs1 = 1, .rs2 = 2, .rd = 3});
+    EXPECT_EQ(core.x[3], 3u);
 }
 
-TEST(InstructionTests, ADDI)
+TEST_F(InstructionTests, SUB)
 {
-    auto fmt_addi = Format{
-        .opcode = 0x13,
-        .funct3 = 0,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 2,
-        .pc = 0
-    };
-
-    auto core = Core();
-    core.x[1] = 1;
-    auto instr = ADDI(fmt_addi);
-    instr.Execute(core);
-    EXPECT_EQ(core.x[3], 3);
-}
-
-TEST(InstructionTests, SUB)
-{
-    auto fmt_sub = Format{
-        .opcode = 0x33,
-        .funct3 = 0,
-        .funct7 = 0x20,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 3;
     core.x[2] = 2;
-    auto* instr = new SUB(fmt_sub);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], 1);
+    Execute<SUB>({.opcode = 0x33, .funct7 = 0x20, .rs1 = 1, .rs2 = 2, .rd = 3});
+    EXPECT_EQ(core.x[3], 1u);
 }
 
-TEST(InstructionTests, LUI)
+TEST_F(InstructionTests, AND)
 {
-    auto fmt_lui = Format{
-        .opcode = 0x37,
-        .funct3 = 0,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 0x12345000,
-        .pc = 0
-    };
-
-    auto core = Core();
-    core.x[1] = 3;
-    auto instr = LUI(fmt_lui);
-    instr.Execute(core);
-    EXPECT_EQ(core.x[3], 0x12345000);
-}
-
-TEST(InstructionTests, AUIPC)
-{
-    auto fmt_auipc = Format{
-        .opcode = 0x17,
-        .funct3 = 0,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 0x1000,
-        .pc = 0x200
-    };
-
-    auto core = Core();
-    auto instr = AUIPC(fmt_auipc);
-    instr.Execute(core);
-    EXPECT_EQ(core.x[3], 0x1200);
-}
-
-TEST(InstructionTests, AND)
-{
-    auto fmt_and = Format{
-        .opcode = 0x33,
-        .funct3 = 7,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0b1100;
     core.x[2] = 0b1010;
-    auto* instr = new AND(fmt_and);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], 0b1000);
+    Execute<AND>({.opcode = 0x33, .funct3 = 7, .rs1 = 1, .rs2 = 2, .rd = 3});
+    EXPECT_EQ(core.x[3], 0b1000u);
 }
 
-TEST(InstructionTests, ANDI)
+TEST_F(InstructionTests, OR)
 {
-    auto fmt_andi = Format{
-        .opcode = 0x13,
-        .funct3 = 7,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 0b1010,
-        .pc = 0
-    };
-
-    auto core = Core();
-    core.x[1] = 0b1100;
-    auto instr = ANDI(fmt_andi);
-    instr.Execute(core);
-    EXPECT_EQ(core.x[3], 0b1000);
-}
-
-TEST(InstructionTests, OR)
-{
-    auto fmt_or = Format{
-        .opcode = 0x33,
-        .funct3 = 6,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0b1100;
     core.x[2] = 0b1010;
-    auto* instr = new OR(fmt_or);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], 0b1110);
+    Execute<OR>({.opcode = 0x33, .funct3 = 6, .rs1 = 1, .rs2 = 2, .rd = 3});
+    EXPECT_EQ(core.x[3], 0b1110u);
 }
 
-TEST(InstructionTests, ORI)
+TEST_F(InstructionTests, XOR)
 {
-    auto fmt_ori = Format{
-        .opcode = 0x13,
-        .funct3 = 6,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 0b1010,
-        .pc = 0
-    };
-
-    auto core = Core();
-    core.x[1] = 0b1100;
-    auto instr = ORI(fmt_ori);
-    instr.Execute(core);
-    EXPECT_EQ(core.x[3], 0b1110);
-}
-
-TEST(InstructionTests, XOR)
-{
-    auto fmt_xor = Format{
-        .opcode = 0x33,
-        .funct3 = 4,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0b1100;
     core.x[2] = 0b1010;
-    auto* instr = new XOR(fmt_xor);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], 0b0110);
+    Execute<XOR>({.opcode = 0x33, .funct3 = 4, .rs1 = 1, .rs2 = 2, .rd = 3});
+    EXPECT_EQ(core.x[3], 0b0110u);
 }
 
-TEST(InstructionTests, XORI)
+TEST_F(InstructionTests, SLL)
 {
-    auto fmt_xori = Format{
-        .opcode = 0x13,
-        .funct3 = 4,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 0b1010,
-        .pc = 0
-    };
-
-    auto core = Core();
-    core.x[1] = 0b1100;
-    auto instr = XORI(fmt_xori);
-    instr.Execute(core);
-    EXPECT_EQ(core.x[3], 0b0110);
-}
-
-TEST(InstructionTests, SLL)
-{
-    auto fmt_sll = Format{
-        .opcode = 0x33,
-        .funct3 = 1,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0b0001;
     core.x[2] = 2;
-    auto* instr = new SLL(fmt_sll);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], 0b0100);
+    Execute<SLL>({.opcode = 0x33, .funct3 = 1, .rs1 = 1, .rs2 = 2, .rd = 3});
+    EXPECT_EQ(core.x[3], 0b0100u);
 }
 
-TEST(InstructionTests, SLLI)
+TEST_F(InstructionTests, SRL)
 {
-    auto fmt_slli = Format{
-        .opcode = 0x13,
-        .funct3 = 1,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 2,
-        .pc = 0
-    };
-
-    auto core = Core();
-    core.x[1] = 0b0001;
-    auto instr = SLLI(fmt_slli);
-    instr.Execute(core);
-    EXPECT_EQ(core.x[3], 0b0100);
-}
-
-TEST(InstructionTests, SRL)
-{
-    auto fmt_srl = Format{
-        .opcode = 0x33,
-        .funct3 = 5,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0b0100;
     core.x[2] = 2;
-    auto* instr = new SRL(fmt_srl);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], 0b0001);
+    Execute<SRL>({.opcode = 0x33, .funct3 = 5, .rs1 = 1, .rs2 = 2, .rd = 3});
+    EXPECT_EQ(core.x[3], 0b0001u);
 }
 
-TEST(InstructionTests, SRLI)
+TEST_F(InstructionTests, SRA)
 {
-    auto fmt_srli = Format{
-        .opcode = 0x13,
-        .funct3 = 5,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 2,
-        .pc = 0
-    };
-
-    auto core = Core();
-    core.x[1] = 0b0100;
-    auto instr = SRLI(fmt_srli);
-    instr.Execute(core);
-    EXPECT_EQ(core.x[3], 0b0001);
-}
-
-TEST(InstructionTests, SRA)
-{
-    auto fmt_sra = Format{
-        .opcode = 0x33,
-        .funct3 = 5,
-        .funct7 = 0x20,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0xFFFFFFFCu;
     core.x[2] = 2;
-    auto* instr = new SRA(fmt_sra);
-    instr->Execute(core);
+    Execute<SRA>({.opcode = 0x33, .funct3 = 5, .funct7 = 0x20, .rs1 = 1, .rs2 = 2, .rd = 3});
     EXPECT_EQ(core.x[3], 0xFFFFFFFFu);
 }
 
-TEST(InstructionTests, SRAI)
+TEST_F(InstructionTests, SLT)
 {
-    auto fmt_srai = Format{
-        .opcode = 0x13,
-        .funct3 = 5,
-        .funct7 = 0x20,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 2,
-        .pc = 0
-    };
+    core.x[1] = 1;
+    core.x[2] = 2;
+    Execute<SLT>({.opcode = 0x33, .funct3 = 2, .rs1 = 1, .rs2 = 2, .rd = 3});
+    EXPECT_EQ(core.x[3], 1u);
+}
 
-    auto core = Core();
+TEST_F(InstructionTests, SLTU)
+{
+    core.x[1] = 1;
+    core.x[2] = 2;
+    Execute<SLTU>({.opcode = 0x33, .funct3 = 3, .rs1 = 1, .rs2 = 2, .rd = 3});
+    EXPECT_EQ(core.x[3], 1u);
+}
+
+TEST_F(InstructionTests, ADDI)
+{
+    core.x[1] = 1;
+    Execute<ADDI>({.opcode = 0x13, .rs1 = 1, .rd = 3, .imm = 2});
+    EXPECT_EQ(core.x[3], 3u);
+}
+
+TEST_F(InstructionTests, ANDI)
+{
+    core.x[1] = 0b1100;
+    Execute<ANDI>({.opcode = 0x13, .funct3 = 7, .rs1 = 1, .rd = 3, .imm = 0b1010});
+    EXPECT_EQ(core.x[3], 0b1000u);
+}
+
+TEST_F(InstructionTests, ORI)
+{
+    core.x[1] = 0b1100;
+    Execute<ORI>({.opcode = 0x13, .funct3 = 6, .rs1 = 1, .rd = 3, .imm = 0b1010});
+    EXPECT_EQ(core.x[3], 0b1110u);
+}
+
+TEST_F(InstructionTests, XORI)
+{
+    core.x[1] = 0b1100;
+    Execute<XORI>({.opcode = 0x13, .funct3 = 4, .rs1 = 1, .rd = 3, .imm = 0b1010});
+    EXPECT_EQ(core.x[3], 0b0110u);
+}
+
+TEST_F(InstructionTests, SLLI)
+{
+    core.x[1] = 0b0001;
+    Execute<SLLI>({.opcode = 0x13, .funct3 = 1, .rs1 = 1, .rd = 3, .imm = 2});
+    EXPECT_EQ(core.x[3], 0b0100u);
+}
+
+TEST_F(InstructionTests, SRLI)
+{
+    core.x[1] = 0b0100;
+    Execute<SRLI>({.opcode = 0x13, .funct3 = 5, .rs1 = 1, .rd = 3, .imm = 2});
+    EXPECT_EQ(core.x[3], 0b0001u);
+}
+
+TEST_F(InstructionTests, SRAI)
+{
     core.x[1] = 0xFFFFFFFCu;
-    auto instr = SRAI(fmt_srai);
-    instr.Execute(core);
+    Execute<SRAI>({.opcode = 0x13, .funct3 = 5, .funct7 = 0x20, .rs1 = 1, .rd = 3, .imm = 2});
     EXPECT_EQ(core.x[3], 0xFFFFFFFFu);
 }
 
-TEST(InstructionTests, SLT)
+TEST_F(InstructionTests, SLTI)
 {
-    auto fmt_slt = Format{
-        .opcode = 0x33,
-        .funct3 = 2,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 1;
-    core.x[2] = 2;
-    auto* instr = new SLT(fmt_slt);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], 1);
+    Execute<SLTI>({.opcode = 0x13, .funct3 = 2, .rs1 = 1, .rd = 3, .imm = 2});
+    EXPECT_EQ(core.x[3], 1u);
 }
 
-TEST(InstructionTests, SLTI)
+TEST_F(InstructionTests, SLTIU)
 {
-    auto fmt_slti = Format{
-        .opcode = 0x13,
-        .funct3 = 2,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 2,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 1;
-    auto instr = SLTI(fmt_slti);
-    instr.Execute(core);
-    EXPECT_EQ(core.x[3], 1);
+    Execute<SLTIU>({.opcode = 0x13, .funct3 = 3, .rs1 = 1, .rd = 3, .imm = 2});
+    EXPECT_EQ(core.x[3], 1u);
 }
 
-TEST(InstructionTests, SLTU)
+TEST_F(InstructionTests, LUI)
 {
-    auto fmt_sltu = Format{
-        .opcode = 0x33,
-        .funct3 = 3,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
-    core.x[1] = 1;
-    core.x[2] = 2;
-    auto* instr = new SLTU(fmt_sltu);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], 1);
+    Execute<LUI>({.opcode = 0x37, .rd = 3, .imm = 0x12345000});
+    EXPECT_EQ(core.x[3], 0x12345000u);
 }
 
-TEST(InstructionTests, SLTIU)
+TEST_F(InstructionTests, AUIPC)
 {
-    auto fmt_sltiu = Format{
-        .opcode = 0x13,
-        .funct3 = 3,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 2,
-        .pc = 0
-    };
-
-    auto core = Core();
-    core.x[1] = 1;
-    auto instr = SLTIU(fmt_sltiu);
-    instr.Execute(core);
-    EXPECT_EQ(core.x[3], 1);
+    Execute<AUIPC>({.opcode = 0x17, .rd = 3, .imm = 0x1000, .pc = 0x200});
+    EXPECT_EQ(core.x[3], 0x1200u);
 }
 
-TEST(InstructionTests, LB)
+TEST_F(InstructionTests, LB)
 {
-    auto fmt_lb = Format{
-        .opcode = 0x03,
-        .funct3 = 0,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0x1000;
     core.memory.WriteByte(0x1000, 0xFF);
-    auto* instr = new LB(fmt_lb);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], static_cast<int32_t>(static_cast<int8_t>(0xFF)));
+    Execute<LB>({.opcode = 0x03, .rs1 = 1, .rd = 3});
+    EXPECT_EQ(core.x[3], 0xFFFFFFFFu);
 }
 
-TEST(InstructionTests, LH)
+TEST_F(InstructionTests, LH)
 {
-    auto fmt_lh = Format{
-        .opcode = 0x03,
-        .funct3 = 1,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0x1000;
     core.memory.WriteHalfWord(0x1000, 0x1234);
-    auto* instr = new LH(fmt_lh);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], static_cast<int32_t>(static_cast<int16_t>(0x1234)));
+    Execute<LH>({.opcode = 0x03, .funct3 = 1, .rs1 = 1, .rd = 3});
+    EXPECT_EQ(core.x[3], 0x1234u);
 }
 
-TEST(InstructionTests, LW)
+TEST_F(InstructionTests, LW)
 {
-    auto fmt_lw = Format{
-        .opcode = 0x03,
-        .funct3 = 2,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0x1000;
     core.memory.WriteWord(0x1000, 0x12345678);
-    auto* instr = new LW(fmt_lw);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], static_cast<int32_t>(0x12345678));
+    Execute<LW>({.opcode = 0x03, .funct3 = 2, .rs1 = 1, .rd = 3});
+    EXPECT_EQ(core.x[3], 0x12345678u);
 }
 
-TEST(InstructionTests, LBU)
+TEST_F(InstructionTests, LBU)
 {
-    auto fmt_lbu = Format{
-        .opcode = 0x03,
-        .funct3 = 4,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0x1000;
     core.memory.WriteByte(0x1000, 0xFF);
-    auto* instr = new LBU(fmt_lbu);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], static_cast<uint32_t>(0xFF));
+    Execute<LBU>({.opcode = 0x03, .funct3 = 4, .rs1 = 1, .rd = 3});
+    EXPECT_EQ(core.x[3], 0xFFu);
 }
 
-TEST(InstructionTests, LHU)
+TEST_F(InstructionTests, LHU)
 {
-    auto fmt_lhu = Format{
-        .opcode = 0x03,
-        .funct3 = 5,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 3,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0x1000;
     core.memory.WriteHalfWord(0x1000, 0x1234);
-    auto* instr = new LHU(fmt_lhu);
-    instr->Execute(core);
-    EXPECT_EQ(core.x[3], static_cast<uint32_t>(0x1234));
+    Execute<LHU>({.opcode = 0x03, .funct3 = 5, .rs1 = 1, .rd = 3});
+    EXPECT_EQ(core.x[3], 0x1234u);
 }
 
-TEST(InstructionTests, SB)
+TEST_F(InstructionTests, SB)
 {
-    auto fmt_sb = Format{
-        .opcode = 0x23,
-        .funct3 = 0,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 0,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0x1000;
     core.x[2] = 0xAB;
-    auto* instr = new SB(fmt_sb);
-    instr->Execute(core);
-    auto data = core.memory.ReadByte(0x1000);
-    EXPECT_EQ(data, 0xAB);
+    Execute<SB>({.opcode = 0x23, .rs1 = 1, .rs2 = 2});
+    EXPECT_EQ(core.memory.ReadByte(0x1000), 0xABu);
 }
 
-
-TEST(InstructionTests, SH)
+TEST_F(InstructionTests, SH)
 {
-    auto fmt_sh = Format{
-        .opcode = 0x23,
-        .funct3 = 1,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 0,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0x1000;
     core.x[2] = 0x1234;
-    auto* instr = new SH(fmt_sh);
-    instr->Execute(core);
-    auto data = core.memory.ReadHalfWord(0x1000);
-    EXPECT_EQ(data, 0x1234);
+    Execute<SH>({.opcode = 0x23, .funct3 = 1, .rs1 = 1, .rs2 = 2});
+    EXPECT_EQ(core.memory.ReadHalfWord(0x1000), 0x1234u);
 }
 
-TEST(InstructionTests, SW)
+TEST_F(InstructionTests, SW)
 {
-    auto fmt_sw = Format{
-        .opcode = 0x23,
-        .funct3 = 2,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 0,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0x1000;
     core.x[2] = 0x12345678;
-    auto* instr = new SW(fmt_sw);
-    instr->Execute(core);
-    auto data = core.memory.ReadWord(0x1000);
-    EXPECT_EQ(data, 0x12345678);
+    Execute<SW>({.opcode = 0x23, .funct3 = 2, .rs1 = 1, .rs2 = 2});
+    EXPECT_EQ(core.memory.ReadWord(0x1000), 0x12345678u);
 }
 
-TEST(InstructionTests, BEQ)
+TEST_F(InstructionTests, BEQ)
 {
-    auto fmt_beq = Format{
-        .opcode = 0x63,
-        .funct3 = 0,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 0,
-        .imm = 4,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 5;
     core.x[2] = 5;
-    auto* instr = new BEQ(fmt_beq);
-    instr->Execute(core);
-    EXPECT_EQ(core.pc, 4);
+    Execute<BEQ>({.opcode = 0x63, .rs1 = 1, .rs2 = 2, .imm = 4});
+    EXPECT_EQ(core.pc, 4u);
 }
 
-TEST(InstructionTests, BNE)
+TEST_F(InstructionTests, BNE)
 {
-    auto fmt_bne = Format{
-        .opcode = 0x63,
-        .funct3 = 1,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 0,
-        .imm = 4,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 5;
     core.x[2] = 6;
-    auto* instr = new BNE(fmt_bne);
-    instr->Execute(core);
-    EXPECT_EQ(core.pc, 4);
+    Execute<BNE>({.opcode = 0x63, .funct3 = 1, .rs1 = 1, .rs2 = 2, .imm = 4});
+    EXPECT_EQ(core.pc, 4u);
 }
 
-TEST(InstructionTests, BLT)
+TEST_F(InstructionTests, BLT)
 {
-    auto fmt_blt = Format{
-        .opcode = 0x63,
-        .funct3 = 4,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 0,
-        .imm = 4,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 5;
     core.x[2] = 6;
-    auto* instr = new BLT(fmt_blt);
-    instr->Execute(core);
-    EXPECT_EQ(core.pc, 4);
+    Execute<BLT>({.opcode = 0x63, .funct3 = 4, .rs1 = 1, .rs2 = 2, .imm = 4});
+    EXPECT_EQ(core.pc, 4u);
 }
 
-TEST(InstructionTests, BGE)
+TEST_F(InstructionTests, BGE)
 {
-    auto fmt_bge = Format{
-        .opcode = 0x63,
-        .funct3 = 5,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 0,
-        .imm = 4,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 6;
     core.x[2] = 5;
-    auto* instr = new BGE(fmt_bge);
-    instr->Execute(core);
-    EXPECT_EQ(core.pc, 4);
+    Execute<BGE>({.opcode = 0x63, .funct3 = 5, .rs1 = 1, .rs2 = 2, .imm = 4});
+    EXPECT_EQ(core.pc, 4u);
 }
 
-TEST(InstructionTests, BLTU)
+TEST_F(InstructionTests, BLTU)
 {
-    auto fmt_bltu = Format{
-        .opcode = 0x63,
-        .funct3 = 6,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 0,
-        .imm = 4,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 5;
     core.x[2] = 6;
-    auto* instr = new BLTU(fmt_bltu);
-    instr->Execute(core);
-    EXPECT_EQ(core.pc, 4);
+    Execute<BLTU>({.opcode = 0x63, .funct3 = 6, .rs1 = 1, .rs2 = 2, .imm = 4});
+    EXPECT_EQ(core.pc, 4u);
 }
 
-TEST(InstructionTests, BGEU)
+TEST_F(InstructionTests, BGEU)
 {
-    auto fmt_bgeu = Format{
-        .opcode = 0x63,
-        .funct3 = 7,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 2,
-        .rd = 0,
-        .imm = 4,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 6;
     core.x[2] = 5;
-    auto* instr = new BGEU(fmt_bgeu);
-    instr->Execute(core);
-    EXPECT_EQ(core.pc, 4);
+    Execute<BGEU>({.opcode = 0x63, .funct3 = 7, .rs1 = 1, .rs2 = 2, .imm = 4});
+    EXPECT_EQ(core.pc, 4u);
 }
 
-TEST(InstructionTests, JAL)
+TEST_F(InstructionTests, JAL)
 {
-    auto fmt_jal = Format{
-        .opcode = 0x6F,
-        .funct3 = 0,
-        .funct7 = 0,
-        .rs1 = 0,
-        .rs2 = 0,
-        .rd = 1,
-        .imm = 4,
-        .pc = 0
-    };
-
-    auto core = Core();
-    auto* instr = new JAL(fmt_jal);
-    instr->Execute(core);
-    EXPECT_EQ(core.pc, 4);
-    EXPECT_EQ(core.x[1], 4);
+    Execute<JAL>({.opcode = 0x6F, .rd = 1, .imm = 4});
+    EXPECT_EQ(core.pc, 4u);
+    EXPECT_EQ(core.x[1], 4u);
 }
 
-TEST(InstructionTests, JALR)
+TEST_F(InstructionTests, JALR)
 {
-    auto fmt_jalr = Format{
-        .opcode = 0x67,
-        .funct3 = 0,
-        .funct7 = 0,
-        .rs1 = 1,
-        .rs2 = 0,
-        .rd = 2,
-        .imm = 4,
-        .pc = 0
-    };
-
-    auto core = Core();
     core.x[1] = 0x1000;
-    auto* instr = new JALR(fmt_jalr);
-    instr->Execute(core);
-    EXPECT_EQ(core.pc, 0x1004);
-    EXPECT_EQ(core.x[2], 4);
+    Execute<JALR>({.opcode = 0x67, .rs1 = 1, .rd = 2, .imm = 4});
+    EXPECT_EQ(core.pc, 0x1004u);
+    EXPECT_EQ(core.x[2], 4u);
 }
 
-TEST(InstructionTests, FENCE)
+TEST_F(InstructionTests, FENCE)
 {
-    auto fmt_fence = Format{
-        .opcode = 0x0F,
-        .funct3 = 0,
-        .funct7 = 0,
-        .rs1 = 0,
-        .rs2 = 0,
-        .rd = 0,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
-    auto* instr = new FENCE(fmt_fence);
-    instr->Execute(core);
-
-    // FENCE is a no-op
+    Execute<FENCE>({.opcode = 0x0F});
 }
 
-TEST(InstructionTests, ECALL)
+TEST_F(InstructionTests, ECALL)
 {
-    auto fmt_ecall = Format{
-        .opcode = 0x73,
-        .funct3 = 0,
-        .funct7 = 0,
-        .rs1 = 0,
-        .rs2 = 0,
-        .rd = 0,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
-    auto* instr = new ECALL(fmt_ecall);
-    instr->Execute(core);
-
-    // ECALL is a no-op
+    Execute<ECALL>({.opcode = 0x73});
 }
 
-TEST(InstructionTests, EBREAK)
+TEST_F(InstructionTests, EBREAK)
 {
-    auto fmt_ebreak = Format{
-        .opcode = 0x73,
-        .funct3 = 0,
-        .funct7 = 1,
-        .rs1 = 0,
-        .rs2 = 0,
-        .rd = 0,
-        .imm = 0,
-        .pc = 0
-    };
-
-    auto core = Core();
-    auto* instr = new EBREAK(fmt_ebreak);
-    instr->Execute(core);
-
-    // EBREAK is a no-op
+    Execute<EBREAK>({.opcode = 0x73, .funct7 = 1});
 }
