@@ -1,369 +1,199 @@
 #pragma once
 
-#include <core.h>
 #include <format.h>
-#include <memory.h>
+
+class Core;
 
 /** @par Instruction
- * 
+ *
  *  The Instruction class is the base class for all instructions.
- * 
+ *
  */
 
 class Instruction
 {
 protected:
 
-	Format m_format;
+    Format m_format;
 
 public:
 
-	Instruction(Format const& format)
-		: m_format(format)
-	{}
+    explicit Instruction(Format const& format);
 
-	virtual auto Execute(Core& core) -> void = 0;
-	virtual ~Instruction() = default;
+    virtual auto Execute(Core& core) -> void = 0;
+    virtual ~Instruction() = default;
 
 };
 
 /** @par Arithmetic Instructions
- * 
+ *
  *  These instructions perform arithmetic operations on the general purpose registers.
- * 
+ *
  */
 
 class ADD : public Instruction
 {
 public:
-
-	ADD(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] + core.x[m_format.rs2];
-	}
-
+    explicit ADD(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class ADDI : public Instruction
 {
 public:
-
-	ADDI(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] + m_format.imm;
-	}
-
+    explicit ADDI(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class SUB : public Instruction
 {
 public:
-
-	SUB(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] - core.x[m_format.rs2];
-	}
-
+    explicit SUB(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class LUI : public Instruction
 {
 public:
-
-	LUI(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = m_format.imm;
-	}
-
+    explicit LUI(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class AUIPC : public Instruction
 {
 public:
-
-	AUIPC(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = m_format.imm + m_format.pc;
-	}
-
+    explicit AUIPC(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 /** @par Logical Instructions
- * 
+ *
  *  These instructions perform logical operations on the general purpose registers.
- * 
+ *
  */
 
 class AND : public Instruction
 {
 public:
-
-	AND(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] & core.x[m_format.rs2];
-	}
-
+    explicit AND(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class ANDI : public Instruction
 {
 public:
-
-	ANDI(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] & m_format.imm;
-	}
-
+    explicit ANDI(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class OR : public Instruction
 {
 public:
-
-	OR(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] | core.x[m_format.rs2];
-	}
-
+    explicit OR(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class ORI : public Instruction
 {
 public:
-
-	ORI(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] | m_format.imm;
-	}
-
+    explicit ORI(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class XOR : public Instruction
 {
 public:
-
-	XOR(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] ^ core.x[m_format.rs2];
-	}
-
+    explicit XOR(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class XORI : public Instruction
 {
 public:
-
-	XORI(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] ^ m_format.imm;
-	}
-
+    explicit XORI(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 /** @par Shift Instructions
- * 
+ *
  *  These instructions perform shift operations on the general purpose registers.
- * 
+ *
  */
 
 class SLL : public Instruction
 {
 public:
-
-	SLL(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] << core.x[m_format.rs2];
-	}
-
+    explicit SLL(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class SLLI : public Instruction
 {
 public:
-
-	SLLI(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] << m_format.imm;
-	}
-
+    explicit SLLI(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class SRL : public Instruction
 {
 public:
-
-	SRL(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] >> core.x[m_format.rs2];
-	}
-
+    explicit SRL(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class SRLI : public Instruction
 {
 public:
-
-	SRLI(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] >> m_format.imm;
-	}
-
+    explicit SRLI(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class SRA : public Instruction
 {
 public:
-
-	SRA(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = static_cast<int32_t>(core.x[m_format.rs1]) >> core.x[m_format.rs2];
-	}
-
+    explicit SRA(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class SRAI : public Instruction
 {
 public:
-
-	SRAI(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = static_cast<int32_t>(core.x[m_format.rs1]) >> m_format.imm;
-	}
-
+    explicit SRAI(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 /** @par Comparison Instructions
- * 
+ *
  *  These instructions perform comparison operations on the general purpose registers.
- * 
+ *
  */
 
 class SLT : public Instruction
 {
 public:
-
-	SLT(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = static_cast<int32_t>(core.x[m_format.rs1]) < static_cast<int32_t>(core.x[m_format.rs2]) ? 1 : 0;
-	}
-
+    explicit SLT(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class SLTI : public Instruction
 {
 public:
-
-	SLTI(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = static_cast<int32_t>(core.x[m_format.rs1]) < static_cast<int32_t>(m_format.imm) ? 1 : 0;
-	}
-
+    explicit SLTI(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class SLTU : public Instruction
 {
 public:
-
-	SLTU(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] < core.x[m_format.rs2] ? 1 : 0;
-	}
-
+    explicit SLTU(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class SLTIU : public Instruction
 {
 public:
-
-	SLTIU(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.x[m_format.rs1] < m_format.imm ? 1 : 0;
-	}
-
+    explicit SLTIU(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 /** @par Load Instructions
@@ -375,80 +205,36 @@ public:
 class LB : public Instruction
 {
 public:
-
-	LB(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		auto value = core.memory.ReadByte(core.x[m_format.rs1] + m_format.imm);
-		core.x[m_format.rd] = (value & 0x80u) != 0 ? value | 0xFFFFFF00u : value;
-	}
-
+    explicit LB(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class LH : public Instruction
 {
 public:
-
-	LH(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		auto value = core.memory.ReadHalfWord(core.x[m_format.rs1] + m_format.imm);
-		core.x[m_format.rd] = (value & 0x8000u) != 0 ? value | 0xFFFF0000u : value;
-	}
-
+    explicit LH(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class LW : public Instruction
 {
 public:
-
-	LW(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		auto data = core.memory.ReadWord(core.x[m_format.rs1] + m_format.imm);
-		core.x[m_format.rd] = data;
-	}
-
+    explicit LW(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class LBU : public Instruction
 {
 public:
-
-	LBU(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = core.memory.ReadByte(core.x[m_format.rs1] + m_format.imm);
-	}
-
+    explicit LBU(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class LHU : public Instruction
 {
 public:
-
-	LHU(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		auto value = core.memory.ReadHalfWord(core.x[m_format.rs1] + m_format.imm);
-		core.x[m_format.rd] = static_cast<uint32_t>(value);
-	}
-
+    explicit LHU(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 /** @par Store Instructions
@@ -460,49 +246,22 @@ public:
 class SB : public Instruction
 {
 public:
-
-	SB(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		auto value = static_cast<uint8_t>(core.x[m_format.rs2] & 0xFF);
-		core.memory.WriteByte(core.x[m_format.rs1] + m_format.imm, value);
-	}
-
+    explicit SB(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class SH : public Instruction
 {
 public:
-
-	SH(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		auto value = static_cast<uint16_t>(core.x[m_format.rs2] & 0xFFFF);
-		core.memory.WriteHalfWord(core.x[m_format.rs1] + m_format.imm, value);
-	}
-
+    explicit SH(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class SW : public Instruction
 {
 public:
-
-	SW(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		auto value = core.x[m_format.rs2];
-		core.memory.WriteWord(core.x[m_format.rs1] + m_format.imm, value);
-	}
-
+    explicit SW(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 /** @par Branch Instructions
@@ -514,109 +273,43 @@ public:
 class BEQ : public Instruction
 {
 public:
-
-	BEQ(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		if (core.x[m_format.rs1] == core.x[m_format.rs2])
-		{
-			core.pc = m_format.pc + m_format.imm;
-		}
-	}
-
+    explicit BEQ(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class BNE : public Instruction
 {
 public:
-
-	BNE(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		if (core.x[m_format.rs1] != core.x[m_format.rs2])
-		{
-			core.pc = m_format.pc + m_format.imm;
-		}
-	}
-
+    explicit BNE(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class BLT : public Instruction
 {
 public:
-
-	BLT(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		if (static_cast<int32_t>(core.x[m_format.rs1]) < static_cast<int32_t>(core.x[m_format.rs2]))
-		{
-			core.pc = m_format.pc + m_format.imm;
-		}
-	}
-
+    explicit BLT(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class BGE : public Instruction
 {
 public:
-
-	BGE(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		if (static_cast<int32_t>(core.x[m_format.rs1]) >= static_cast<int32_t>(core.x[m_format.rs2]))
-		{
-			core.pc = m_format.pc + m_format.imm;
-		}
-	}
-
+    explicit BGE(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class BLTU : public Instruction
 {
 public:
-
-	BLTU(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		if (core.x[m_format.rs1] < core.x[m_format.rs2])
-		{
-			core.pc = m_format.pc + m_format.imm;
-		}
-	}
-
+    explicit BLTU(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class BGEU : public Instruction
 {
 public:
-
-	BGEU(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		if (core.x[m_format.rs1] >= core.x[m_format.rs2])
-		{
-			core.pc = m_format.pc + m_format.imm;
-		}
-	}
-
+    explicit BGEU(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 /** @par Jump Instructions
@@ -628,34 +321,15 @@ public:
 class JAL : public Instruction
 {
 public:
-
-	JAL(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		core.x[m_format.rd] = m_format.pc + 4;
-		core.pc = m_format.pc + m_format.imm;
-	}
-
+    explicit JAL(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class JALR : public Instruction
 {
 public:
-
-	JALR(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		auto temp = core.pc + 4;
-		core.pc = (core.x[m_format.rs1] + m_format.imm) & ~1u;
-		core.x[m_format.rd] = temp;
-	}
-
+    explicit JALR(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 /** @par Memory Ordering Instructions
@@ -667,16 +341,8 @@ public:
 class FENCE : public Instruction
 {
 public:
-
-	FENCE(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		// not implemented, no-op
-	}
-
+    explicit FENCE(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 /** @par System Instructions
@@ -688,29 +354,13 @@ public:
 class ECALL : public Instruction
 {
 public:
-
-	ECALL(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		// not implemented, no-op
-	}
-
+    explicit ECALL(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
 
 class EBREAK : public Instruction
 {
 public:
-
-	EBREAK(Format const& format)
-		: Instruction(format)
-	{}
-
-	auto Execute(Core& core) -> void override
-	{
-		// not implemented, no-op
-	}
-
+    explicit EBREAK(Format const& format);
+    auto Execute(Core& core) -> void override;
 };
