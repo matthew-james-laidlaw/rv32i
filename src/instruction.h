@@ -629,3 +629,42 @@ public:
 	}
 
 };
+
+/** @par Jump Instructions
+ *
+ *  These instructions perform jump operations, altering the program counter based on the instruction's immediate value.
+ *
+ */
+
+class JAL : public Instruction
+{
+public:
+
+	JAL(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		core.x[m_format.rd] = m_format.pc + 4;
+		core.pc = m_format.pc + m_format.imm;
+	}
+
+};
+
+class JALR : public Instruction
+{
+public:
+
+	JALR(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		auto temp = core.pc + 4;
+		core.pc = (core.x[m_format.rs1] + m_format.imm) & ~1u;
+		core.x[m_format.rd] = temp;
+	}
+
+};

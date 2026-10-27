@@ -735,3 +735,44 @@ TEST(InstructionTests, BGEU)
     instr->Execute(core);
     EXPECT_EQ(core.pc, 4);
 }
+
+TEST(InstructionTests, JAL)
+{
+    auto fmt_jal = Format{
+        .opcode = 0x6F,
+        .funct3 = 0,
+        .funct7 = 0,
+        .rs1 = 0,
+        .rs2 = 0,
+        .rd = 1,
+        .imm = 4,
+        .pc = 0
+    };
+
+    auto core = Core();
+    auto* instr = new JAL(fmt_jal);
+    instr->Execute(core);
+    EXPECT_EQ(core.pc, 4);
+    EXPECT_EQ(core.x[1], 4);
+}
+
+TEST(InstructionTests, JALR)
+{
+    auto fmt_jalr = Format{
+        .opcode = 0x67,
+        .funct3 = 0,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 0,
+        .rd = 2,
+        .imm = 4,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0x1000;
+    auto* instr = new JALR(fmt_jalr);
+    instr->Execute(core);
+    EXPECT_EQ(core.pc, 0x1004);
+    EXPECT_EQ(core.x[2], 4);
+}
