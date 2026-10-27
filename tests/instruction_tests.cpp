@@ -104,3 +104,249 @@ TEST(InstructionTests, AUIPC)
     instr.Execute(core);
     EXPECT_EQ(core.x[3], 0x1200);
 }
+
+TEST(InstructionTests, AND)
+{
+    auto fmt_and = Format{
+        .opcode = 0x33,
+        .funct3 = 7,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 3,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0b1100;
+    core.x[2] = 0b1010;
+    auto* instr = new AND(fmt_and);
+    instr->Execute(core);
+    EXPECT_EQ(core.x[3], 0b1000);
+}
+
+TEST(InstructionTests, ANDI)
+{
+    auto fmt_andi = Format{
+        .opcode = 0x13,
+        .funct3 = 7,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 0,
+        .rd = 3,
+        .imm = 0b1010,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0b1100;
+    auto instr = ANDI(fmt_andi);
+    instr.Execute(core);
+    EXPECT_EQ(core.x[3], 0b1000);
+}
+
+TEST(InstructionTests, OR)
+{
+    auto fmt_or = Format{
+        .opcode = 0x33,
+        .funct3 = 6,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 3,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0b1100;
+    core.x[2] = 0b1010;
+    auto* instr = new OR(fmt_or);
+    instr->Execute(core);
+    EXPECT_EQ(core.x[3], 0b1110);
+}
+
+TEST(InstructionTests, ORI)
+{
+    auto fmt_ori = Format{
+        .opcode = 0x13,
+        .funct3 = 6,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 0,
+        .rd = 3,
+        .imm = 0b1010,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0b1100;
+    auto instr = ORI(fmt_ori);
+    instr.Execute(core);
+    EXPECT_EQ(core.x[3], 0b1110);
+}
+
+TEST(InstructionTests, XOR)
+{
+    auto fmt_xor = Format{
+        .opcode = 0x33,
+        .funct3 = 4,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 3,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0b1100;
+    core.x[2] = 0b1010;
+    auto* instr = new XOR(fmt_xor);
+    instr->Execute(core);
+    EXPECT_EQ(core.x[3], 0b0110);
+}
+
+TEST(InstructionTests, XORI)
+{
+    auto fmt_xori = Format{
+        .opcode = 0x13,
+        .funct3 = 4,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 0,
+        .rd = 3,
+        .imm = 0b1010,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0b1100;
+    auto instr = XORI(fmt_xori);
+    instr.Execute(core);
+    EXPECT_EQ(core.x[3], 0b0110);
+}
+
+TEST(InstructionTests, SLL)
+{
+    auto fmt_sll = Format{
+        .opcode = 0x33,
+        .funct3 = 1,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 3,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0b0001;
+    core.x[2] = 2;
+    auto* instr = new SLL(fmt_sll);
+    instr->Execute(core);
+    EXPECT_EQ(core.x[3], 0b0100);
+}
+
+TEST(InstructionTests, SLLI)
+{
+    auto fmt_slli = Format{
+        .opcode = 0x13,
+        .funct3 = 1,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 0,
+        .rd = 3,
+        .imm = 2,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0b0001;
+    auto instr = SLLI(fmt_slli);
+    instr.Execute(core);
+    EXPECT_EQ(core.x[3], 0b0100);
+}
+
+TEST(InstructionTests, SRL)
+{
+    auto fmt_srl = Format{
+        .opcode = 0x33,
+        .funct3 = 5,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 3,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0b0100;
+    core.x[2] = 2;
+    auto* instr = new SRL(fmt_srl);
+    instr->Execute(core);
+    EXPECT_EQ(core.x[3], 0b0001);
+}
+
+TEST(InstructionTests, SRLI)
+{
+    auto fmt_srli = Format{
+        .opcode = 0x13,
+        .funct3 = 5,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 0,
+        .rd = 3,
+        .imm = 2,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0b0100;
+    auto instr = SRLI(fmt_srli);
+    instr.Execute(core);
+    EXPECT_EQ(core.x[3], 0b0001);
+}
+
+TEST(InstructionTests, SRA)
+{
+    auto fmt_sra = Format{
+        .opcode = 0x33,
+        .funct3 = 5,
+        .funct7 = 0x20,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 3,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0xFFFFFFFCu;
+    core.x[2] = 2;
+    auto* instr = new SRA(fmt_sra);
+    instr->Execute(core);
+    EXPECT_EQ(core.x[3], 0xFFFFFFFFu);
+}
+
+TEST(InstructionTests, SRAI)
+{
+    auto fmt_srai = Format{
+        .opcode = 0x13,
+        .funct3 = 5,
+        .funct7 = 0x20,
+        .rs1 = 1,
+        .rs2 = 0,
+        .rd = 3,
+        .imm = 2,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 0xFFFFFFFCu;
+    auto instr = SRAI(fmt_srai);
+    instr.Execute(core);
+    EXPECT_EQ(core.x[3], 0xFFFFFFFFu);
+}

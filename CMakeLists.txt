@@ -11,3 +11,7 @@ add_executable(instruction_tests
     tests/instruction_tests.cpp
 )
 target_link_libraries(instruction_tests emulator GTest::gtest_main)
+
+include(GoogleTest)
+enable_testing()
+gtest_discover_tests(instruction_tests)
