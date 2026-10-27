@@ -11,6 +11,10 @@ class Core
 {
 public:
 
+	Core()
+		: memory(), x{}, pc(0)
+	{}
+
 	Memory memory;   // main memory
 	uint32_t x[32];  // general purpose registers
 	uint32_t pc;     // program counter
