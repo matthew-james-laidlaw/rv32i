@@ -609,3 +609,129 @@ TEST(InstructionTests, SW)
     EXPECT_EQ(data[2], 0x34);
     EXPECT_EQ(data[3], 0x12);
 }
+
+TEST(InstructionTests, BEQ)
+{
+    auto fmt_beq = Format{
+        .opcode = 0x63,
+        .funct3 = 0,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 0,
+        .imm = 4,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 5;
+    core.x[2] = 5;
+    auto* instr = new BEQ(fmt_beq);
+    instr->Execute(core);
+    EXPECT_EQ(core.pc, 4);
+}
+
+TEST(InstructionTests, BNE)
+{
+    auto fmt_bne = Format{
+        .opcode = 0x63,
+        .funct3 = 1,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 0,
+        .imm = 4,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 5;
+    core.x[2] = 6;
+    auto* instr = new BNE(fmt_bne);
+    instr->Execute(core);
+    EXPECT_EQ(core.pc, 4);
+}
+
+TEST(InstructionTests, BLT)
+{
+    auto fmt_blt = Format{
+        .opcode = 0x63,
+        .funct3 = 4,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 0,
+        .imm = 4,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 5;
+    core.x[2] = 6;
+    auto* instr = new BLT(fmt_blt);
+    instr->Execute(core);
+    EXPECT_EQ(core.pc, 4);
+}
+
+TEST(InstructionTests, BGE)
+{
+    auto fmt_bge = Format{
+        .opcode = 0x63,
+        .funct3 = 5,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 0,
+        .imm = 4,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 6;
+    core.x[2] = 5;
+    auto* instr = new BGE(fmt_bge);
+    instr->Execute(core);
+    EXPECT_EQ(core.pc, 4);
+}
+
+TEST(InstructionTests, BLTU)
+{
+    auto fmt_bltu = Format{
+        .opcode = 0x63,
+        .funct3 = 6,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 0,
+        .imm = 4,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 5;
+    core.x[2] = 6;
+    auto* instr = new BLTU(fmt_bltu);
+    instr->Execute(core);
+    EXPECT_EQ(core.pc, 4);
+}
+
+TEST(InstructionTests, BGEU)
+{
+    auto fmt_bgeu = Format{
+        .opcode = 0x63,
+        .funct3 = 7,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 0,
+        .imm = 4,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 6;
+    core.x[2] = 5;
+    auto* instr = new BGEU(fmt_bgeu);
+    instr->Execute(core);
+    EXPECT_EQ(core.pc, 4);
+}

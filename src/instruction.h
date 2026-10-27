@@ -515,3 +515,117 @@ public:
 	}
 
 };
+
+/** @par Branch Instructions
+ *
+ *  These instructions perform branch operations based on the values in the general purpose registers.
+ *
+ */
+
+class BEQ : public Instruction
+{
+public:
+
+	BEQ(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		if (core.x[m_format.rs1] == core.x[m_format.rs2])
+		{
+			core.pc = m_format.pc + m_format.imm;
+		}
+	}
+
+};
+
+class BNE : public Instruction
+{
+public:
+
+	BNE(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		if (core.x[m_format.rs1] != core.x[m_format.rs2])
+		{
+			core.pc = m_format.pc + m_format.imm;
+		}
+	}
+
+};
+
+class BLT : public Instruction
+{
+public:
+
+	BLT(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		if (static_cast<int32_t>(core.x[m_format.rs1]) < static_cast<int32_t>(core.x[m_format.rs2]))
+		{
+			core.pc = m_format.pc + m_format.imm;
+		}
+	}
+
+};
+
+class BGE : public Instruction
+{
+public:
+
+	BGE(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		if (static_cast<int32_t>(core.x[m_format.rs1]) >= static_cast<int32_t>(core.x[m_format.rs2]))
+		{
+			core.pc = m_format.pc + m_format.imm;
+		}
+	}
+
+};
+
+class BLTU : public Instruction
+{
+public:
+
+	BLTU(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		if (core.x[m_format.rs1] < core.x[m_format.rs2])
+		{
+			core.pc = m_format.pc + m_format.imm;
+		}
+	}
+
+};
+
+class BGEU : public Instruction
+{
+public:
+
+	BGEU(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		if (core.x[m_format.rs1] >= core.x[m_format.rs2])
+		{
+			core.pc = m_format.pc + m_format.imm;
+		}
+	}
+
+};
