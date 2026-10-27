@@ -382,8 +382,7 @@ public:
 
 	auto Execute(Core& core) -> void override
 	{
-		auto data = core.memory.Read(core.x[m_format.rs1] + m_format.imm, 1);
-		auto value = static_cast<uint32_t>(data[0]);
+		auto value = core.memory.ReadByte(core.x[m_format.rs1] + m_format.imm);
 		core.x[m_format.rd] = (value & 0x80u) != 0 ? value | 0xFFFFFF00u : value;
 	}
 
@@ -399,8 +398,7 @@ public:
 
 	auto Execute(Core& core) -> void override
 	{
-		auto data = core.memory.Read(core.x[m_format.rs1] + m_format.imm, 2);
-		auto value = static_cast<uint32_t>(data[0]) | (static_cast<uint32_t>(data[1]) << 8);
+		auto value = core.memory.ReadHalfWord(core.x[m_format.rs1] + m_format.imm);
 		core.x[m_format.rd] = (value & 0x8000u) != 0 ? value | 0xFFFF0000u : value;
 	}
 
@@ -416,11 +414,8 @@ public:
 
 	auto Execute(Core& core) -> void override
 	{
-		auto data = core.memory.Read(core.x[m_format.rs1] + m_format.imm, 4);
-		core.x[m_format.rd] = static_cast<uint32_t>(data[0])
-			| (static_cast<uint32_t>(data[1]) << 8)
-			| (static_cast<uint32_t>(data[2]) << 16)
-			| (static_cast<uint32_t>(data[3]) << 24);
+		auto data = core.memory.ReadWord(core.x[m_format.rs1] + m_format.imm);
+		core.x[m_format.rd] = data;
 	}
 
 };
@@ -435,7 +430,7 @@ public:
 
 	auto Execute(Core& core) -> void override
 	{
-		core.x[m_format.rd] = core.memory.Read(core.x[m_format.rs1] + m_format.imm, 1)[0];
+		core.x[m_format.rd] = core.memory.ReadByte(core.x[m_format.rs1] + m_format.imm);
 	}
 
 };
@@ -450,9 +445,8 @@ public:
 
 	auto Execute(Core& core) -> void override
 	{
-		auto data = core.memory.Read(core.x[m_format.rs1] + m_format.imm, 2);
-		core.x[m_format.rd] = static_cast<uint32_t>(data[0])
-			| (static_cast<uint32_t>(data[1]) << 8);
+		auto value = core.memory.ReadHalfWord(core.x[m_format.rs1] + m_format.imm);
+		core.x[m_format.rd] = static_cast<uint32_t>(value);
 	}
 
 };
@@ -474,7 +468,7 @@ public:
 	auto Execute(Core& core) -> void override
 	{
 		auto value = static_cast<uint8_t>(core.x[m_format.rs2] & 0xFF);
-		core.memory.Write(core.x[m_format.rs1] + m_format.imm, {value});
+		core.memory.WriteByte(core.x[m_format.rs1] + m_format.imm, value);
 	}
 
 };
@@ -490,7 +484,7 @@ public:
 	auto Execute(Core& core) -> void override
 	{
 		auto value = static_cast<uint16_t>(core.x[m_format.rs2] & 0xFFFF);
-		core.memory.Write(core.x[m_format.rs1] + m_format.imm, {static_cast<uint8_t>(value & 0xFF), static_cast<uint8_t>((value >> 8) & 0xFF)});
+		core.memory.WriteHalfWord(core.x[m_format.rs1] + m_format.imm, value);
 	}
 
 };
@@ -506,12 +500,7 @@ public:
 	auto Execute(Core& core) -> void override
 	{
 		auto value = core.x[m_format.rs2];
-		core.memory.Write(core.x[m_format.rs1] + m_format.imm, {
-			static_cast<uint8_t>(value & 0xFF),
-			static_cast<uint8_t>((value >> 8) & 0xFF),
-			static_cast<uint8_t>((value >> 16) & 0xFF),
-			static_cast<uint8_t>((value >> 24) & 0xFF)
-		});
+		core.memory.WriteWord(core.x[m_format.rs1] + m_format.imm, value);
 	}
 
 };

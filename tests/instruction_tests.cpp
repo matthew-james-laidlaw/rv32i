@@ -449,7 +449,7 @@ TEST(InstructionTests, LB)
 
     auto core = Core();
     core.x[1] = 0x1000;
-    core.memory.Write(0x1000, {0xFF});
+    core.memory.WriteByte(0x1000, 0xFF);
     auto* instr = new LB(fmt_lb);
     instr->Execute(core);
     EXPECT_EQ(core.x[3], static_cast<int32_t>(static_cast<int8_t>(0xFF)));
@@ -470,7 +470,7 @@ TEST(InstructionTests, LH)
 
     auto core = Core();
     core.x[1] = 0x1000;
-    core.memory.Write(0x1000, {0x34, 0x12});
+    core.memory.WriteHalfWord(0x1000, 0x1234);
     auto* instr = new LH(fmt_lh);
     instr->Execute(core);
     EXPECT_EQ(core.x[3], static_cast<int32_t>(static_cast<int16_t>(0x1234)));
@@ -491,7 +491,7 @@ TEST(InstructionTests, LW)
 
     auto core = Core();
     core.x[1] = 0x1000;
-    core.memory.Write(0x1000, {0x78, 0x56, 0x34, 0x12});
+    core.memory.WriteWord(0x1000, 0x12345678);
     auto* instr = new LW(fmt_lw);
     instr->Execute(core);
     EXPECT_EQ(core.x[3], static_cast<int32_t>(0x12345678));
@@ -512,7 +512,7 @@ TEST(InstructionTests, LBU)
 
     auto core = Core();
     core.x[1] = 0x1000;
-    core.memory.Write(0x1000, {0xFF});
+    core.memory.WriteByte(0x1000, 0xFF);
     auto* instr = new LBU(fmt_lbu);
     instr->Execute(core);
     EXPECT_EQ(core.x[3], static_cast<uint32_t>(0xFF));
@@ -533,7 +533,7 @@ TEST(InstructionTests, LHU)
 
     auto core = Core();
     core.x[1] = 0x1000;
-    core.memory.Write(0x1000, {0x34, 0x12});
+    core.memory.WriteHalfWord(0x1000, 0x1234);
     auto* instr = new LHU(fmt_lhu);
     instr->Execute(core);
     EXPECT_EQ(core.x[3], static_cast<uint32_t>(0x1234));
@@ -557,8 +557,8 @@ TEST(InstructionTests, SB)
     core.x[2] = 0xAB;
     auto* instr = new SB(fmt_sb);
     instr->Execute(core);
-    auto data = core.memory.Read(0x1000, 1);
-    EXPECT_EQ(data[0], 0xAB);
+    auto data = core.memory.ReadByte(0x1000);
+    EXPECT_EQ(data, 0xAB);
 }
 
 
@@ -580,9 +580,8 @@ TEST(InstructionTests, SH)
     core.x[2] = 0x1234;
     auto* instr = new SH(fmt_sh);
     instr->Execute(core);
-    auto data = core.memory.Read(0x1000, 2);
-    EXPECT_EQ(data[0], 0x34);
-    EXPECT_EQ(data[1], 0x12);
+    auto data = core.memory.ReadHalfWord(0x1000);
+    EXPECT_EQ(data, 0x1234);
 }
 
 TEST(InstructionTests, SW)
@@ -603,11 +602,8 @@ TEST(InstructionTests, SW)
     core.x[2] = 0x12345678;
     auto* instr = new SW(fmt_sw);
     instr->Execute(core);
-    auto data = core.memory.Read(0x1000, 4);
-    EXPECT_EQ(data[0], 0x78);
-    EXPECT_EQ(data[1], 0x56);
-    EXPECT_EQ(data[2], 0x34);
-    EXPECT_EQ(data[3], 0x12);
+    auto data = core.memory.ReadWord(0x1000);
+    EXPECT_EQ(data, 0x12345678);
 }
 
 TEST(InstructionTests, BEQ)

@@ -17,22 +17,65 @@ public:
         : m_memory(0x10000, 0) // default to 64KB of memory
     {}
 
-    auto Read(uint32_t address, size_t size_in_bytes) -> std::vector<uint8_t>
+    auto ReadByte(uint32_t address) -> uint8_t
     {
-        if (address + size_in_bytes > m_memory.size())
+        if (address >= m_memory.size())
         {
-            throw std::runtime_error(std::format("out of bounds memory access at address 0x{:08X} for size {} bytes", address, size_in_bytes));
+            throw std::runtime_error(std::format("out of bounds memory access at address 0x{:08X}", address));
         }
-        return std::vector<uint8_t>(m_memory.begin() + address, m_memory.begin() + address + size_in_bytes);
+        return m_memory[address];
     }
 
-    auto Write(uint32_t address, const std::vector<uint8_t>& data) -> void
+    auto ReadHalfWord(uint32_t address) -> uint16_t
     {
-        if (address + data.size() > m_memory.size())
+        if (address + 1 >= m_memory.size())
         {
-            throw std::runtime_error(std::format("out of bounds memory access at address 0x{:08X} for size {} bytes", address, data.size()));
+            throw std::runtime_error(std::format("out of bounds memory access at address 0x{:08X}", address));
         }
-        std::copy(data.begin(), data.end(), m_memory.begin() + address);
+        return static_cast<uint16_t>(m_memory[address]) | (static_cast<uint16_t>(m_memory[address + 1]) << 8);
+    }
+
+    auto ReadWord(uint32_t address) -> uint32_t
+    {
+        if (address + 3 >= m_memory.size())
+        {
+            throw std::runtime_error(std::format("out of bounds memory access at address 0x{:08X}", address));
+        }
+        return static_cast<uint32_t>(m_memory[address]) |
+               (static_cast<uint32_t>(m_memory[address + 1]) << 8) |
+               (static_cast<uint32_t>(m_memory[address + 2]) << 16) |
+               (static_cast<uint32_t>(m_memory[address + 3]) << 24);
+    }
+
+    auto WriteByte(uint32_t address, uint8_t value) -> void
+    {
+        if (address >= m_memory.size())
+        {
+            throw std::runtime_error(std::format("out of bounds memory access at address 0x{:08X}", address));
+        }
+        m_memory[address] = value;
+    }
+
+    auto WriteHalfWord(uint32_t address, uint16_t value) -> void
+    {
+        if (address + 1 >= m_memory.size())
+        {
+            throw std::runtime_error(std::format("out of bounds memory access at address 0x{:08X}", address));
+        }
+        m_memory[address] = static_cast<uint8_t>(value & 0xFF);
+        m_memory[address + 1] = static_cast<uint8_t>((value >> 8) & 0xFF);
+    }
+
+    auto WriteWord(uint32_t address, uint32_t value) -> void
+    {
+        if (address + 3 >= m_memory.size())
+        {
+            throw std::runtime_error(std::format("out of bounds memory access at address 0x{:08X}", address));
+        }
+        m_memory[address] = static_cast<uint8_t>(value & 0xFF);
+        m_memory[address + 1] = static_cast<uint8_t>((value >> 8) & 0xFF);
+        m_memory[address + 2] = static_cast<uint8_t>((value >> 16) & 0xFF);
+        m_memory[address + 3] = static_cast<uint8_t>((value >> 24) & 0xFF);
     }
 
 };

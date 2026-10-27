@@ -2,13 +2,23 @@
 
 #include <memory.h>
 
-TEST(MemoryTest, ReadWrite)
+TEST(MemoryTest, ReadWriteByte)
 {
     Memory memory;
+    memory.WriteByte(0x0000, 0x12);
+    EXPECT_EQ(memory.ReadByte(0x0000), 0x12);
+}
 
-    auto data_to_write = std::vector<uint8_t>{ 0x01, 0x02, 0x03, 0x04 };
-    memory.Write(0x0000, data_to_write);
+TEST(MemoryTest, ReadWriteHalfWord)
+{
+    Memory memory;
+    memory.WriteHalfWord(0x0000, 0x1234);
+    EXPECT_EQ(memory.ReadHalfWord(0x0000), 0x1234);
+}
 
-    auto data_read = memory.Read(0x0000, 4);
-    EXPECT_EQ(data_read, data_to_write);
+TEST(MemoryTest, ReadWriteWord)
+{
+    Memory memory;
+    memory.WriteWord(0x0000, 0x12345678);
+    EXPECT_EQ(memory.ReadWord(0x0000), 0x12345678);
 }
