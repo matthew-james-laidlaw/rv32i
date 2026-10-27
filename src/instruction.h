@@ -298,3 +298,69 @@ public:
 	}
 
 };
+
+/** @par Comparison Instructions
+ * 
+ *  These instructions perform comparison operations on the general purpose registers.
+ * 
+ */
+
+class SLT : public Instruction
+{
+public:
+
+	SLT(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		core.x[m_format.rd] = static_cast<int32_t>(core.x[m_format.rs1]) < static_cast<int32_t>(core.x[m_format.rs2]) ? 1 : 0;
+	}
+
+};
+
+class SLTI : public Instruction
+{
+public:
+
+	SLTI(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		core.x[m_format.rd] = static_cast<int32_t>(core.x[m_format.rs1]) < static_cast<int32_t>(m_format.imm) ? 1 : 0;
+	}
+
+};
+
+class SLTU : public Instruction
+{
+public:
+
+	SLTU(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		core.x[m_format.rd] = core.x[m_format.rs1] < core.x[m_format.rs2] ? 1 : 0;
+	}
+
+};
+
+class SLTIU : public Instruction
+{
+public:
+
+	SLTIU(Format const& format)
+		: Instruction(format)
+	{}
+
+	auto Execute(Core& core) -> void override
+	{
+		core.x[m_format.rd] = core.x[m_format.rs1] < m_format.imm ? 1 : 0;
+	}
+
+};

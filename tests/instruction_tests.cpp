@@ -350,3 +350,85 @@ TEST(InstructionTests, SRAI)
     instr.Execute(core);
     EXPECT_EQ(core.x[3], 0xFFFFFFFFu);
 }
+
+TEST(InstructionTests, SLT)
+{
+    auto fmt_slt = Format{
+        .opcode = 0x33,
+        .funct3 = 2,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 3,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 1;
+    core.x[2] = 2;
+    auto* instr = new SLT(fmt_slt);
+    instr->Execute(core);
+    EXPECT_EQ(core.x[3], 1);
+}
+
+TEST(InstructionTests, SLTI)
+{
+    auto fmt_slti = Format{
+        .opcode = 0x13,
+        .funct3 = 2,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 0,
+        .rd = 3,
+        .imm = 2,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 1;
+    auto instr = SLTI(fmt_slti);
+    instr.Execute(core);
+    EXPECT_EQ(core.x[3], 1);
+}
+
+TEST(InstructionTests, SLTU)
+{
+    auto fmt_sltu = Format{
+        .opcode = 0x33,
+        .funct3 = 3,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 2,
+        .rd = 3,
+        .imm = 0,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 1;
+    core.x[2] = 2;
+    auto* instr = new SLTU(fmt_sltu);
+    instr->Execute(core);
+    EXPECT_EQ(core.x[3], 1);
+}
+
+TEST(InstructionTests, SLTIU)
+{
+    auto fmt_sltiu = Format{
+        .opcode = 0x13,
+        .funct3 = 3,
+        .funct7 = 0,
+        .rs1 = 1,
+        .rs2 = 0,
+        .rd = 3,
+        .imm = 2,
+        .pc = 0
+    };
+
+    auto core = Core();
+    core.x[1] = 1;
+    auto instr = SLTIU(fmt_sltiu);
+    instr.Execute(core);
+    EXPECT_EQ(core.x[3], 1);
+}
