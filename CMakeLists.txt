@@ -1,8 +1,13 @@
 cmake_minimum_required(VERSION 3.28.3)
 project(RV32I LANGUAGES CXX)
 
-add_executable(RV32I
-    src/main.cpp
-)
+include(cmake/cpm_fetch_dependencies.cmake)
 
-target_compile_features(RV32I PRIVATE cxx_std_23)
+add_library(emulator INTERFACE)
+target_include_directories(emulator INTERFACE src)
+target_compile_features(emulator INTERFACE cxx_std_23)
+
+add_executable(instruction_tests
+    tests/instruction_tests.cpp
+)
+target_link_libraries(instruction_tests emulator GTest::gtest_main)
