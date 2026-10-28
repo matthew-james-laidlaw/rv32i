@@ -15,7 +15,9 @@ public:
 	Memory memory;        // main memory
 	Registers registers;  // register file
 
+	auto Step() -> void;
 	auto Run(uint32_t cycles) -> void;
+
 	auto Load(std::vector<uint8_t> program) -> void;
 
 	auto GetMemory() -> Memory&;

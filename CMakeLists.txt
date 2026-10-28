@@ -59,6 +59,10 @@ add_executable(instruction_tests
 )
 target_include_directories(instruction_tests PRIVATE tests)
 target_link_libraries(instruction_tests emulator GTest::gtest_main)
+set_target_properties(instruction_tests PROPERTIES
+    UNITY_BUILD ON
+    UNITY_BUILD_BATCH_SIZE 0
+)
 
 include(GoogleTest)
 enable_testing()

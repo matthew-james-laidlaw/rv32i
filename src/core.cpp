@@ -1,29 +1,34 @@
 #include <core.h>
 #include <instruction.h>
 
+auto Core::Step() -> void
+{
+    auto instruction_word = Fetch();
+    if (instruction_word == 0u)
+    {
+        throw std::runtime_error("Failed to fetch instruction");
+    }
+
+    auto instruction = Decode(instruction_word);
+    if (!instruction)
+    {
+        throw std::runtime_error("Failed to decode instruction");
+    }
+
+    auto previous_pc = registers.ReadPC();
+    Execute(instruction);
+    registers.WriteGP(0, 0);
+    if (registers.ReadPC() == previous_pc)
+    {
+        registers.WritePC(previous_pc + 4);
+    }
+}
+
 auto Core::Run(uint32_t cycles) -> void
 {
     for (uint32_t i = 0; i < cycles; ++i)
     {
-        auto instruction_word = Fetch();
-        if (instruction_word == 0u)
-        {
-            break;
-        }
-
-        auto instruction = Decode(instruction_word);
-        if (!instruction)
-        {
-            break;
-        }
-
-        auto previous_pc = registers.ReadPC();
-        Execute(instruction);
-        registers.WriteGP(0, 0);
-        if (registers.ReadPC() == previous_pc)
-        {
-            registers.WritePC(previous_pc + 4);
-        }
+        Step();
     }
 }
 
