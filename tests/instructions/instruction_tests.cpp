@@ -2,46 +2,6 @@
 
 #include <memory.h>
 
-TEST_F(InstructionTests, SLL)
-{
-    core.registers.WriteGP(1, 0b0001);
-    core.registers.WriteGP(2, 2);
-    Execute<SLL>({.opcode = Opcode::R, .funct3 = Funct3::Sll, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 3});
-    EXPECT_EQ(core.registers.ReadGP(3), 0b0100u);
-}
-
-TEST_F(InstructionTests, SRL)
-{
-    core.registers.WriteGP(1, 0b0100);
-    core.registers.WriteGP(2, 2);
-    Execute<SRL>({.opcode = Opcode::R, .funct3 = Funct3::SrlSra, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 3});
-    EXPECT_EQ(core.registers.ReadGP(3), 0b0001u);
-}
-
-TEST_F(InstructionTests, SRA)
-{
-    core.registers.WriteGP(1, 0xFFFFFFFCu);
-    core.registers.WriteGP(2, 2);
-    Execute<SRA>({.opcode = Opcode::R, .funct3 = Funct3::SrlSra, .funct7 = Funct7::Alternative, .rs1 = 1, .rs2 = 2, .rd = 3});
-    EXPECT_EQ(core.registers.ReadGP(3), 0xFFFFFFFFu);
-}
-
-TEST_F(InstructionTests, SLT)
-{
-    core.registers.WriteGP(1, 1);
-    core.registers.WriteGP(2, 2);
-    Execute<SLT>({.opcode = Opcode::R, .funct3 = Funct3::Slt, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 3});
-    EXPECT_EQ(core.registers.ReadGP(3), 1u);
-}
-
-TEST_F(InstructionTests, SLTU)
-{
-    core.registers.WriteGP(1, 1);
-    core.registers.WriteGP(2, 2);
-    Execute<SLTU>({.opcode = Opcode::R, .funct3 = Funct3::Sltu, .funct7 = Funct7::Base, .rs1 = 1, .rs2 = 2, .rd = 3});
-    EXPECT_EQ(core.registers.ReadGP(3), 1u);
-}
-
 TEST_F(InstructionTests, ADDI)
 {
     core.registers.WriteGP(1, 1);

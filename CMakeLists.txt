@@ -17,6 +17,11 @@ add_executable(instruction_tests
     tests/instructions/and_tests.cpp
     tests/instructions/instruction_tests.cpp
     tests/instructions/or_tests.cpp
+    tests/instructions/sll_tests.cpp
+    tests/instructions/slt_tests.cpp
+    tests/instructions/sltu_tests.cpp
+    tests/instructions/sra_tests.cpp
+    tests/instructions/srl_tests.cpp
     tests/instructions/sub_tests.cpp
     tests/instructions/xor_tests.cpp
     tests/memory_tests.cpp

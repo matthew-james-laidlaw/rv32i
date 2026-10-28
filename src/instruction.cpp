@@ -110,7 +110,7 @@ SLL::SLL(Format const& format)
 
 auto SLL::Execute(Core& core) -> void
 {
-    core.registers.WriteGP(m_format.rd, core.registers.ReadGP(m_format.rs1) << core.registers.ReadGP(m_format.rs2));
+    core.registers.WriteGP(m_format.rd, core.registers.ReadGP(m_format.rs1) << (core.registers.ReadGP(m_format.rs2) & 0x1Fu));
 }
 
 SLLI::SLLI(Format const& format)
@@ -128,7 +128,7 @@ SRL::SRL(Format const& format)
 
 auto SRL::Execute(Core& core) -> void
 {
-    core.registers.WriteGP(m_format.rd, core.registers.ReadGP(m_format.rs1) >> core.registers.ReadGP(m_format.rs2));
+    core.registers.WriteGP(m_format.rd, core.registers.ReadGP(m_format.rs1) >> (core.registers.ReadGP(m_format.rs2) & 0x1Fu));
 }
 
 SRLI::SRLI(Format const& format)
@@ -146,7 +146,7 @@ SRA::SRA(Format const& format)
 
 auto SRA::Execute(Core& core) -> void
 {
-    core.registers.WriteGP(m_format.rd, static_cast<int32_t>(core.registers.ReadGP(m_format.rs1)) >> core.registers.ReadGP(m_format.rs2));
+    core.registers.WriteGP(m_format.rd, static_cast<int32_t>(core.registers.ReadGP(m_format.rs1)) >> (core.registers.ReadGP(m_format.rs2) & 0x1Fu));
 }
 
 SRAI::SRAI(Format const& format)
