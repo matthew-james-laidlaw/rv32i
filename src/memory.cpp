@@ -3,8 +3,8 @@
 #include <format>
 #include <stdexcept>
 
-Memory::Memory()
-    : m_memory(0x10000, 0) // default to 64KB of memory
+Memory::Memory(size_t memory_size)
+    : m_memory(memory_size, 0)
 {}
 
 auto Memory::ReadByte(uint32_t address) -> uint8_t

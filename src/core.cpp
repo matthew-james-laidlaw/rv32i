@@ -3,6 +3,10 @@
 
 #include <stdexcept>
 
+Core::Core(size_t memory_size)
+    : memory(memory_size)
+{}
+
 auto Core::Step() -> void
 {
     auto instruction_word = Fetch();
@@ -34,11 +38,11 @@ auto Core::Run(uint32_t cycles) -> void
     }
 }
 
-auto Core::Load(std::vector<uint8_t> program) -> void
+auto Core::Load(std::vector<uint8_t> const& program, size_t offset) -> void
 {
     for (size_t i = 0; i < program.size(); ++i)
     {
-        memory.WriteByte(i, program[i]);
+        memory.WriteByte(offset + i, program[i]);
     }
 }
 
@@ -174,10 +178,21 @@ auto Core::Decode(uint32_t instruction) -> std::unique_ptr<Instruction>
         case 0x0F: // FENCE
             return std::make_unique<FENCE>(fmt);
         case 0x73: // SYSTEM
-            if (instruction == 0x00000073u)
-                return std::make_unique<ECALL>(fmt);
-            if (instruction == 0x00100073u)
-                return std::make_unique<EBREAK>(fmt);
+            switch (fmt.funct3)
+            {
+                case 0x0:
+                    if (instruction == 0x00000073u)
+                        return std::make_unique<ECALL>(fmt);
+                    if (instruction == 0x00100073u)
+                        return std::make_unique<EBREAK>(fmt);
+                    break;
+                case 0x1:
+                    return std::make_unique<CSRRW>(fmt);
+                case 0x2:
+                    return std::make_unique<CSRRS>(fmt);
+                case 0x5:
+                    return std::make_unique<CSRRWI>(fmt);
+            }
             break;
     }
     return nullptr;
@@ -248,6 +263,9 @@ auto Core::DecodeFormat(uint32_t instruction, uint32_t pc) -> Format
         case 0x17:
         case 0x37:
             fmt.imm = instruction & 0xFFFFF000u;
+            break;
+        case 0x73: // CSR number, zero-extended
+            fmt.imm = (instruction >> 20) & 0xFFFu;
             break;
         default:
             fmt.imm = 0;

@@ -392,3 +392,42 @@ auto EBREAK::Execute(Core& core) -> void
 {
     // not implemented, no-op
 }
+
+CSRRW::CSRRW(Format const& format)
+    : Instruction(format)
+{}
+
+auto CSRRW::Execute(Core& core) -> void
+{
+    auto old_value = core.csrs.Read(m_format.imm);
+    if (m_format.rs1 != 0)
+    {
+        core.csrs.Write(m_format.imm, core.registers.ReadGP(m_format.rs1));
+    }
+    core.registers.WriteGP(m_format.rd, old_value);
+}
+
+CSRRS::CSRRS(Format const& format)
+    : Instruction(format)
+{}
+
+auto CSRRS::Execute(Core& core) -> void
+{
+    auto old_value = core.csrs.Read(m_format.imm);
+    if (m_format.rs1 != 0)
+    {
+        core.csrs.Write(m_format.imm, old_value | core.registers.ReadGP(m_format.rs1));
+    }
+    core.registers.WriteGP(m_format.rd, old_value);
+}
+
+CSRRWI::CSRRWI(Format const& format)
+    : Instruction(format)
+{}
+
+auto CSRRWI::Execute(Core& core) -> void
+{
+    auto old_value = core.csrs.Read(m_format.imm);
+    core.csrs.Write(m_format.imm, m_format.rs1);
+    core.registers.WriteGP(m_format.rd, old_value);
+}

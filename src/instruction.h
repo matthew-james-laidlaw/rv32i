@@ -364,3 +364,29 @@ public:
     explicit EBREAK(Format const& format);
     auto Execute(Core& core) -> void override;
 };
+
+/** @par CSR Instructions
+ *
+ *  These instructions are used for reading and writing control and status registers (CSRs).
+ *
+ */
+class CSRRW : public Instruction
+{
+public:
+    explicit CSRRW(Format const& format);
+    auto Execute(Core& core) -> void override;
+};
+
+class CSRRS : public Instruction
+{
+public:
+    explicit CSRRS(Format const& format);
+    auto Execute(Core& core) -> void override;
+};
+
+class CSRRWI : public Instruction
+{
+public:
+    explicit CSRRWI(Format const& format);
+    auto Execute(Core& core) -> void override;
+};

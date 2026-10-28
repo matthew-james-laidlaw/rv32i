@@ -12,7 +12,8 @@ add_library(emulator
 target_include_directories(emulator PUBLIC src)
 target_compile_features(emulator PUBLIC cxx_std_23)
 
-add_executable(instruction_tests
+add_executable(unit_tests
+    tests/acceptance_tests.cpp
     tests/core_tests.cpp
     tests/instructions/add_tests.cpp
     tests/instructions/addi_tests.cpp
@@ -57,13 +58,16 @@ add_executable(instruction_tests
     tests/memory_tests.cpp
     tests/registers_tests.cpp
 )
-target_include_directories(instruction_tests PRIVATE tests)
-target_link_libraries(instruction_tests emulator GTest::gtest_main)
-set_target_properties(instruction_tests PROPERTIES
+target_include_directories(unit_tests PRIVATE tests)
+target_link_libraries(unit_tests emulator GTest::gtest_main)
+target_compile_definitions(unit_tests PRIVATE
+    TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/data"
+)
+set_target_properties(unit_tests PROPERTIES
     UNITY_BUILD ON
     UNITY_BUILD_BATCH_SIZE 0
 )
 
 include(GoogleTest)
 enable_testing()
-gtest_discover_tests(instruction_tests)
+gtest_discover_tests(unit_tests)

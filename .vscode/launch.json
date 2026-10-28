@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/unit_tests",
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "CMake: build",
+            "args": [
+                "--gtest_filter=AcceptanceTests.*"
+            ]
+        }
+    ]
+}

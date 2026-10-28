@@ -11,7 +11,7 @@ private:
 
 public:
 
-    Memory();
+    Memory(size_t memory_size = 0x10000);
 
     auto ReadByte(uint32_t address) -> uint8_t;
     auto ReadHalfWord(uint32_t address) -> uint16_t;

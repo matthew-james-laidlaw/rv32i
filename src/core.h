@@ -1,5 +1,6 @@
 #pragma once
 
+#include <csrs.h>
 #include <format.h>
 #include <instruction.h>
 #include <memory.h>
@@ -14,11 +15,14 @@ public:
 
 	Memory memory;        // main memory
 	Registers registers;  // register file
+	Csrs csrs;            // control and status registers
+
+	Core(size_t memory_size = 0x10000);
 
 	auto Step() -> void;
 	auto Run(uint32_t cycles) -> void;
 
-	auto Load(std::vector<uint8_t> program) -> void;
+	auto Load(std::vector<uint8_t> const& program, size_t offset = 0) -> void;
 
 	auto GetMemory() -> Memory&;
 	auto GetRegisters() -> Registers&;
