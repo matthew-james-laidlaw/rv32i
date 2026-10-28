@@ -8,10 +8,15 @@ class Memory
 private:
 
     std::vector<uint8_t> m_memory;
+    uint32_t m_base;  // guest address of the first byte
+
+    auto Translate(uint32_t address, size_t length) const -> size_t;
 
 public:
 
-    Memory(size_t memory_size = 0x10000);
+    Memory(size_t memory_size = 0x10000, uint32_t base = 0);
+
+    auto Base() const -> uint32_t;
 
     auto ReadByte(uint32_t address) -> uint8_t;
     auto ReadHalfWord(uint32_t address) -> uint16_t;

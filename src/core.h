@@ -17,7 +17,7 @@ public:
 	Registers registers;  // register file
 	Csrs csrs;            // control and status registers
 
-	Core(size_t memory_size = 0x10000);
+	Core(size_t memory_size = 0x10000, uint32_t memory_base = 0);
 
 	auto Step() -> void;
 	auto Run(uint32_t cycles) -> void;

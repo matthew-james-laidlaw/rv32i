@@ -3,9 +3,11 @@
 
 #include <stdexcept>
 
-Core::Core(size_t memory_size)
-    : memory(memory_size)
-{}
+Core::Core(size_t memory_size, uint32_t memory_base)
+    : memory(memory_size, memory_base)
+{
+    registers.WritePC(memory_base);
+}
 
 auto Core::Step() -> void
 {
@@ -42,7 +44,7 @@ auto Core::Load(std::vector<uint8_t> const& program, size_t offset) -> void
 {
     for (size_t i = 0; i < program.size(); ++i)
     {
-        memory.WriteByte(offset + i, program[i]);
+        memory.WriteByte(memory.Base() + offset + i, program[i]);
     }
 }
 

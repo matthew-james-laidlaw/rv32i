@@ -111,3 +111,21 @@ TEST(MemoryTest, AddressOverflowDoesNotWrapIntoValidMemory)
     EXPECT_THROW(memory.WriteWord(max_address - 1, 0u), std::runtime_error);
     EXPECT_THROW(memory.WriteWord(max_address - 2, 0u), std::runtime_error);
 }
+
+TEST(MemoryTest, BaseAddressTranslatesAccesses)
+{
+    Memory memory(0x100, 0x80000000u);
+    memory.WriteWord(0x80000000u, 0xDEADBEEF);
+    memory.WriteByte(0x800000FFu, 0x7F);
+    EXPECT_EQ(memory.ReadWord(0x80000000u), 0xDEADBEEFu);
+    EXPECT_EQ(memory.ReadByte(0x800000FFu), 0x7Fu);
+}
+
+TEST(MemoryTest, BaseAddressRejectsAddressesOutsideTheRange)
+{
+    Memory memory(0x100, 0x80000000u);
+    EXPECT_THROW(memory.ReadByte(0x00000000u), std::runtime_error);
+    EXPECT_THROW(memory.ReadByte(0x7FFFFFFFu), std::runtime_error);
+    EXPECT_THROW(memory.ReadByte(0x80000100u), std::runtime_error);
+    EXPECT_THROW(memory.ReadWord(0x800000FDu), std::runtime_error);
+}

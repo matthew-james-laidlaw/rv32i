@@ -46,3 +46,9 @@ TEST(CoreTests, SimpleProgram)
 
     EXPECT_EQ(core.registers.ReadGP(6), 55u);
 }
+
+TEST(CoreTests, ProgramCounterStartsAtMemoryBase)
+{
+    EXPECT_EQ(Core().registers.ReadPC(), 0u);
+    EXPECT_EQ(Core(0x1000, 0x80000000u).registers.ReadPC(), 0x80000000u);
+}
