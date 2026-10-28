@@ -1,6 +1,8 @@
 #include <core.h>
 #include <instruction.h>
 
+#include <stdexcept>
+
 auto Core::Step() -> void
 {
     auto instruction_word = Fetch();
