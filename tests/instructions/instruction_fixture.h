@@ -60,4 +60,31 @@ protected:
         EXPECT_TRUE(TakeSnapshot() == expected_state);
     }
 
+    template <typename T>
+    auto ExecuteExpectingPC(Format const& format, uint32_t expected_pc) -> void
+    {
+        auto expected_state = TakeSnapshot();
+        Execute<T>(format);
+        expected_state.pc = expected_pc;
+        EXPECT_TRUE(TakeSnapshot() == expected_state);
+    }
+
+    template <typename T>
+    auto ExecuteExpectingTransfer(Format const& format, uint32_t expected_link, uint32_t expected_pc) -> void
+    {
+        auto expected_state = TakeSnapshot();
+        Execute<T>(format);
+        expected_state.x[format.rd] = expected_link;
+        expected_state.pc = expected_pc;
+        EXPECT_TRUE(TakeSnapshot() == expected_state);
+    }
+
+    template <typename T>
+    auto ExecuteUnchanged(Format const& format) -> void
+    {
+        auto expected_state = TakeSnapshot();
+        Execute<T>(format);
+        EXPECT_TRUE(TakeSnapshot() == expected_state);
+    }
+
 };
