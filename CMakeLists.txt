@@ -13,9 +13,15 @@ target_compile_features(emulator PUBLIC cxx_std_23)
 
 add_executable(instruction_tests
     tests/core_tests.cpp
-    tests/instruction_tests.cpp
+    tests/instructions/add_tests.cpp
+    tests/instructions/and_tests.cpp
+    tests/instructions/instruction_tests.cpp
+    tests/instructions/or_tests.cpp
+    tests/instructions/sub_tests.cpp
+    tests/instructions/xor_tests.cpp
     tests/memory_tests.cpp
 )
+target_include_directories(instruction_tests PRIVATE tests)
 target_link_libraries(instruction_tests emulator GTest::gtest_main)
 
 include(GoogleTest)
