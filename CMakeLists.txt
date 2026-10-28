@@ -6,6 +6,7 @@ include(cmake/cpm_fetch_dependencies.cmake)
 add_library(emulator
     src/core.cpp
     src/instruction.cpp
+    src/memory.cpp
     src/registers.cpp
 )
 target_include_directories(emulator PUBLIC src)
@@ -54,6 +55,7 @@ add_executable(instruction_tests
     tests/instructions/xori_tests.cpp
     tests/instructions/xor_tests.cpp
     tests/memory_tests.cpp
+    tests/registers_tests.cpp
 )
 target_include_directories(instruction_tests PRIVATE tests)
 target_link_libraries(instruction_tests emulator GTest::gtest_main)

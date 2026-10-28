@@ -22,6 +22,7 @@ namespace Opcode
 // funct3 identifiers
 namespace Funct3
 {
+	// arithmetic and logical operations
 	inline constexpr uint8_t AddSub = 0x0;
 	inline constexpr uint8_t Sll    = 0x1;
 	inline constexpr uint8_t Slt    = 0x2;
