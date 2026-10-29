@@ -365,6 +365,13 @@ public:
     auto Execute(Core& core) -> void override;
 };
 
+class MRET : public Instruction
+{
+public:
+    explicit MRET(Format const& format);
+    auto Execute(Core& core) -> void override;
+};
+
 /** @par CSR Instructions
  *
  *  These instructions are used for reading and writing control and status registers (CSRs).

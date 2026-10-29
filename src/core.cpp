@@ -187,6 +187,8 @@ auto Core::Decode(uint32_t instruction) -> std::unique_ptr<Instruction>
                         return std::make_unique<ECALL>(fmt);
                     if (instruction == 0x00100073u)
                         return std::make_unique<EBREAK>(fmt);
+                    if (instruction == 0x30200073u)
+                        return std::make_unique<MRET>(fmt);
                     break;
                 case 0x1:
                     return std::make_unique<CSRRW>(fmt);

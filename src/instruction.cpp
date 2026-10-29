@@ -379,9 +379,17 @@ ECALL::ECALL(Format const& format)
     : Instruction(format)
 {}
 
+// Enters the machine-mode trap handler: records the faulting pc and cause, then jumps to mtvec.
+static auto TakeTrap(Core& core, uint32_t cause) -> void
+{
+    core.csrs.Write(Csr::Mepc, core.registers.ReadPC());
+    core.csrs.Write(Csr::Mcause, cause);
+    core.registers.WritePC(core.csrs.Read(Csr::Mtvec));
+}
+
 auto ECALL::Execute(Core& core) -> void
 {
-    // not implemented, no-op
+    TakeTrap(core, TrapCause::EcallFromMMode);
 }
 
 EBREAK::EBREAK(Format const& format)
@@ -390,7 +398,16 @@ EBREAK::EBREAK(Format const& format)
 
 auto EBREAK::Execute(Core& core) -> void
 {
-    // not implemented, no-op
+    TakeTrap(core, TrapCause::Breakpoint);
+}
+
+MRET::MRET(Format const& format)
+    : Instruction(format)
+{}
+
+auto MRET::Execute(Core& core) -> void
+{
+    core.registers.WritePC(core.csrs.Read(Csr::Mepc));
 }
 
 CSRRW::CSRRW(Format const& format)

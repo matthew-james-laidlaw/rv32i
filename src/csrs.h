@@ -3,6 +3,19 @@
 #include <array>
 #include <cstdint>
 
+namespace Csr
+{
+    inline constexpr uint32_t Mtvec  = 0x305;
+    inline constexpr uint32_t Mepc   = 0x341;
+    inline constexpr uint32_t Mcause = 0x342;
+}
+
+namespace TrapCause
+{
+    inline constexpr uint32_t Breakpoint        = 3;
+    inline constexpr uint32_t EcallFromMMode    = 11;
+}
+
 class Csrs
 {
 private:

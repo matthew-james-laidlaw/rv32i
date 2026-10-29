@@ -37,6 +37,7 @@ add_executable(unit_tests
     tests/instructions/lhu_tests.cpp
     tests/instructions/lui_tests.cpp
     tests/instructions/lw_tests.cpp
+    tests/instructions/mret_tests.cpp
     tests/instructions/or_tests.cpp
     tests/instructions/ori_tests.cpp
     tests/instructions/sb_tests.cpp
