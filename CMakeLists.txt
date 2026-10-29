@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.28.3)
 project(RV32I LANGUAGES CXX)
 
 include(cmake/cpm_fetch_dependencies.cmake)
+option(RV32I_BUILD_ACCEPTANCE_TESTS "Fetch and build the riscv-tests rv32ui acceptance tests" OFF)
+if(RV32I_BUILD_ACCEPTANCE_TESTS)
+    include(cmake/riscv_tests.cmake)
+endif()
 
 add_library(emulator
     src/core.cpp
@@ -13,7 +17,6 @@ target_include_directories(emulator PUBLIC src)
 target_compile_features(emulator PUBLIC cxx_std_23)
 
 add_executable(unit_tests
-    tests/acceptance_tests.cpp
     tests/core_tests.cpp
     tests/instructions/add_tests.cpp
     tests/instructions/addi_tests.cpp
@@ -61,9 +64,11 @@ add_executable(unit_tests
 )
 target_include_directories(unit_tests PRIVATE tests)
 target_link_libraries(unit_tests emulator GTest::gtest_main)
-target_compile_definitions(unit_tests PRIVATE
-    TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/data"
-)
+if(RV32I_BUILD_ACCEPTANCE_TESTS)
+    target_sources(unit_tests PRIVATE tests/acceptance_tests.cpp)
+    target_compile_definitions(unit_tests PRIVATE TEST_DATA_DIR="${RISCV_TESTS_BIN_DIR}")
+    add_dependencies(unit_tests riscv_test_bins)
+endif()
 set_target_properties(unit_tests PROPERTIES
     UNITY_BUILD ON
     UNITY_BUILD_BATCH_SIZE 0
