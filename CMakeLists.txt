@@ -7,14 +7,7 @@ if(BUILD_ACCEPTANCE_TESTS)
     include(cmake/riscv_tests.cmake)
 endif()
 
-add_library(emulator
-    src/core.cpp
-    src/instruction.cpp
-    src/memory.cpp
-    src/registers.cpp
-)
-target_include_directories(emulator PUBLIC src)
-target_compile_features(emulator PUBLIC cxx_std_23)
+add_subdirectory(src)
 
 add_executable(unit_tests
     tests/core_tests.cpp
@@ -63,7 +56,7 @@ add_executable(unit_tests
     tests/registers_tests.cpp
 )
 target_include_directories(unit_tests PRIVATE tests)
-target_link_libraries(unit_tests emulator GTest::gtest_main)
+target_link_libraries(unit_tests emucore GTest::gtest_main)
 if(BUILD_ACCEPTANCE_TESTS)
     target_sources(unit_tests PRIVATE tests/acceptance_tests.cpp)
     target_compile_definitions(unit_tests PRIVATE TEST_DATA_DIR="${RISCV_TESTS_BIN_DIR}")
